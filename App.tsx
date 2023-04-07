@@ -6,9 +6,10 @@
  */
 
 import React from 'react';
-import Home from './src/screen/Home';
+import Navigation from './src/Navigation';
 
-function App(){return( <Home/>);}
+
+function App(){return( <Navigation/>);}
 
 
 export default App;

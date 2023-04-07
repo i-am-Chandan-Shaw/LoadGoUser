@@ -35,6 +35,15 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>$(PRODUCT_NAME) would like to use your Location</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>$(PRODUCT_NAME) would like to use your Location</string>
+    <key>NSLocationUsageDescription</key>
+    <string>GPS data is required to...</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>$(PRODUCT_NAME) would like to use your Location</string>
+
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UILaunchStoryboardName</key>

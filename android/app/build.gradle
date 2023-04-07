@@ -3,6 +3,8 @@ apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 
+
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -129,11 +131,15 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+             manifestPlaceholders = [API_KEY: "$System.env.REACT_APP_MAPS_API"]
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
+            manifestPlaceholders = [API_KEY: "$System.env.REACT_APP_MAPS_API"]
+
+            debuggable true
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -179,5 +185,5 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf','MaterialCommunityIcons.ttf', 'EvilIcons.ttf' ] // Name of the font files you want to copy
+    iconFontNames: [ 'MaterialIcons.ttf','FontAwesome.ttf','MaterialCommunityIcons.ttf', 'EvilIcons.ttf' ] // Name of the font files you want to copy
 ]

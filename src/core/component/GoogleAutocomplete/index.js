@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { ScrollView, SafeAreaView, FlatList } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import style from './style';
@@ -29,6 +29,9 @@ return (
                                 key: apiKey,
                                 language: 'en',
                                 components: 'country:IN',
+                                strictbounds: true,
+                                location:"22.9868, 87.8550",
+                                radius:"167000"
                             }}
                             
                         />

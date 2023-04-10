@@ -12,8 +12,11 @@ const style = StyleSheet.create({
       zIndex:10,
       top:height/3,
       left:width/2
-
-      
+   },
+   onCenterContainer:{
+      position:'absolute',
+      bottom:0,
+      right:0
    }
    
 });

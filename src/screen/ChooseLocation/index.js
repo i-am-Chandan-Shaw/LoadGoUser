@@ -3,12 +3,7 @@ import { View } from 'react-native';
 import GoogleAutocomplete from '../../core/component/GoogleAutocomplete';
 import {REACT_APP_MAPS_API} from '@env'
 
-
-
-
-
-
-const GOOGLE_MAPS_APIKEY = REACT_APP_MAPS_API;
+const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 
 const ChooseLocation = (props) => {
 
@@ -53,13 +48,13 @@ const ChooseLocation = (props) => {
 
     return (
             <Fragment>
-                <GoogleAutocomplete apiKey={GOOGLE_MAPS_APIKEY} styles={{marginTop:10}} placeholder={'Enter Pickup Location'} onPress={setPickupCords} />
+                <GoogleAutocomplete apiKey={GOOGLE_MAPS_API_KEY} styles={{marginTop:10}} placeholder={'Enter Pickup Location'} onPress={setPickupCords} />
                 <View>
                     <View></View>
                     <View></View>
                     <View></View>
                 </View>
-                <GoogleAutocomplete apiKey={GOOGLE_MAPS_APIKEY} placeholder={'Enter Drop Location'} onPress={setDropCords}/>
+                <GoogleAutocomplete apiKey={GOOGLE_MAPS_API_KEY} placeholder={'Enter Drop Location'} onPress={setDropCords}/>
             </Fragment>
 
     )

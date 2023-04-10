@@ -138,33 +138,36 @@ const Dashboard = () => {
 
     return (
         <View>
-            <View style={style.loaderContainer}>
-                {state.isLoading ?  <ActivityIndicator size={'medium'}/> : null}
-            </View>
-            <View>
+            <View style={style.container}>
                  <LocationInputButton
                     onPress={choosePickup}
                     iconColor={'green'}
                     textColor={address.pickUp == '' ? '#aaaa' : '#000'}
                     text={address.pickUp == '' ? 'Enter Pickup Location' : address.pickUp} />
 
-                <MapView ref={mapRef} style={{ width: '100%', height: 420 }}
+                <MapView ref={mapRef} style={style.mapContainer}
                     initialRegion={{
                         latitude: 22.5629,
                         longitude: 88.3962,
                         latitudeDelta: LATITUDE_DELTA,
                         longitudeDelta: LONGITUDE_DELTA,
                     }}
+                    toolbarEnabled={false}
+                    loadingEnabled={true}
                     showsUserLocation={true}
-                    showsMyLocationButton={false}
+                    showsMyLocationButton={true}
                     zoomEnabled = {true}
+                    showsScale={true}
                     >
 
-                    <Marker.Animated  coordinate={state.coordinate} ref={markerRef} >
+                    {/* Current Location Marker */}
+                    {/* <Marker.Animated  coordinate={state.coordinate} ref={markerRef} >
                         <Image style={{ height: 35, width: 35 }} source={imagePath.currentLocationMarker} />
-                    </Marker.Animated>
+                    </Marker.Animated> */}
 
-                    {Object.keys(state.pickupCords).length > 0 && (<Marker pinColor='green' coordinate={state.pickupCords} />)}
+                    {Object.keys(state.pickupCords).length > 0 && (<Marker coordinate={state.pickupCords}>
+                        <Image style={{ height: 35, width: 35 }} source={imagePath.currentLocationMarker} />
+                    </Marker>)}
                     {Object.keys(state.dropCords).length > 0 && (<Marker coordinate={state.dropCords} />)}
                     {Object.keys(state.dropCords).length > 0 && <MapViewDirections
                         origin={state.pickupCords}

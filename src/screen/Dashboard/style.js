@@ -1,22 +1,28 @@
 import { Dimensions, StyleSheet } from 'react-native'
 const { width, height } = Dimensions.get('window');
 const style = StyleSheet.create({
-   bottomContainer:{
-      borderRadius:50,
-      backgroundColor:'red',
-      flex:1,
-      zIndex:10000,
+   container:{
+      height:'100%',
+      width:'100%'
    },
-   loaderContainer:{
+   bottomContainer:{
+      borderTopRightRadius:30,
+      borderTopLeftRadius:30,
+      zIndex:100,
       position:'absolute',
-      zIndex:10,
-      top:height/3,
-      left:width/2
+      bottom:0,
+      width:'100%',
+      backgroundColor:'#fff',
+      height:height/4
    },
    onCenterContainer:{
       position:'absolute',
-      bottom:0,
+      bottom:height/4,
       right:0
+   },
+   mapContainer:{
+      width: '100%', 
+      height: height/1.4
    }
    
 });

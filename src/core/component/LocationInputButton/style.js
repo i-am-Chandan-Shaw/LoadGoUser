@@ -1,6 +1,9 @@
 import { StyleSheet } from 'react-native'
 
 const style = StyleSheet.create({
+    mainContainer:{
+        zIndex:10,
+    },
     container:{
         zIndex:10,
         width:'100%',

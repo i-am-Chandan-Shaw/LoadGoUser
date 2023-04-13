@@ -17,7 +17,7 @@ export const locationPermission = ()=> new Promise(async(resolve, reject)=>{
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
             'title': 'Load Go ',
-            'message': 'Load Go wants  to access your location '
+            'message': 'Load Go wants  to access your location ',
           }
         ).then((granted)=>{
             if(granted=== PermissionsAndroid.RESULTS.GRANTED){

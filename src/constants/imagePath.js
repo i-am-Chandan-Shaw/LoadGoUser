@@ -1,7 +1,6 @@
 export default{
-    dropMarker: require('../assets/images/location-pin.png'),
-    pickupMarker: require('../assets/images/Oval.png'),
-    currentLocationMarker: require('../assets/images/Oval.png'),
+    dropMarker: require('../assets/images/drop-marker.png'),
+    pickupMarker: require('../assets/images/pickup-marker.png'),
     liveLocationBtn: require('../assets/images/greenIndicator.png')
 
 }

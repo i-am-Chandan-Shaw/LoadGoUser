@@ -19,7 +19,6 @@ return (
                     <ScrollView keyboardShouldPersistTaps={'handled'} style={[style.container,styles]}>
                         <GooglePlacesAutocomplete styles={{textInputContainer: style.input}}
                             enablePoweredByContainer={false}
-                            
                             currentLocation={true}
                             placeholder={placeholder}
                             fetchDetails={true}

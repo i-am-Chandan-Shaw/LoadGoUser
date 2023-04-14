@@ -4,7 +4,7 @@ const style = StyleSheet.create({
    container:{
       height:'100%',
       width:'100%',
-      position:'relative'
+      position:'relative',
    },
    backButton:{
       position:'absolute',
@@ -22,8 +22,9 @@ const style = StyleSheet.create({
       bottom:10,
       width:'100%',
    },
-   onCenterContainer:{
-
+   bottomSheetPopup:{
+      padding:10,
+      paddingTop:0
    },
    mapContainer:{
       width: '100%', 

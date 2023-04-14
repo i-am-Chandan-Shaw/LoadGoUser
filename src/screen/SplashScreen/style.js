@@ -13,7 +13,7 @@ const style = StyleSheet.create({
         height:305, 
         width:345,
         position:'relative',
-        top:'10%'
+        top:'25%'
     },
     logoText:{
         position:'relative',

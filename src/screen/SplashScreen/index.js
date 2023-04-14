@@ -11,7 +11,7 @@ const SplashScreen=({navigation})=>{
 return (
     <View style={style.container}>
         <Image style={style.image} source={require('../../assets/illustrations/delivery.png')} />
-        <Text style={style.logoText}>LOAD GO</Text>
+        {/* <Text style={style.logoText}>LOAD GO</Text> */}
     </View>
     )
 }

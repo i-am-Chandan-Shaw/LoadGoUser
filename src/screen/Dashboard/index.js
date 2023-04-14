@@ -12,7 +12,8 @@ import style from './style';
 import {REACT_APP_MAPS_API} from '@env';
 import CustomMarker from '../../core/component/CustomMarker';
 import IonicIcon from 'react-native-vector-icons/Ionicons'
-import { Button, Dialog, Portal } from 'react-native-paper';
+import { Button } from 'react-native-paper';
+import ReceiverDetails from '../../core/View/ReceiverDetails';
 
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 const { width, height } = Dimensions.get('window');
@@ -24,7 +25,7 @@ const Dashboard = () => {
     const mapRef = useRef();
     const markerRef= useRef();
     const bottomSheetRef = useRef(null)
-    const snapPoints=["20%"]
+    const snapPoints=[270]
 
     const navigation = useNavigation()
 
@@ -64,9 +65,6 @@ const Dashboard = () => {
         
     },[state.pickupCords])
 
-
-
-
     const startFetchingLocation=()=>{
         const interval = setInterval(() => {
             getLiveLocation()
@@ -89,6 +87,7 @@ const Dashboard = () => {
                     })
                 })
                 setAddress({
+                    ...address,
                     pickUp: await getAddressFromCoordinates(latitude,longitude)
                 })
                 setState({
@@ -107,7 +106,6 @@ const Dashboard = () => {
             }
         }catch(error){
             console.log(error);
-            getLiveLocation();
         }
        
     }
@@ -180,8 +178,8 @@ const Dashboard = () => {
             latitudeDelta:LATITUDE_DELTA,
             longitudeDelta:LONGITUDE_DELTA
         });
+        openBottomSheet();
 
-        // bottomSheetRef.current?.present()
     }
 
     const getAddressFromCoordinates=(latitude, longitude) =>{
@@ -198,7 +196,6 @@ const Dashboard = () => {
             .then(responseJson => {
               if (responseJson.status === 'OK') {
                 resolve(responseJson?.results?.[3]?.formatted_address);
-                console.log(responseJson)
               } else {
                 reject('not found');
               }
@@ -213,7 +210,7 @@ const Dashboard = () => {
         bottomSheetRef.current?.present()
     }
 
-    const cancelRoute=()=>{
+    const cancelRoute= async ()=>{
         setState({
             ...state,
             dropCords:{},
@@ -221,9 +218,11 @@ const Dashboard = () => {
         });
 
         setAddress({
-            pickUp:'',
-            drop:''
+            drop:'',
+            pickUp: await getAddressFromCoordinates(currentLocation.latitude,currentLocation.longitude)
+            
         });
+
         onCenter();
     }
 
@@ -243,7 +242,7 @@ const Dashboard = () => {
                     <MapView ref={mapRef} style={style.mapContainer}
                         initialRegion={currentLocation}
                         toolbarEnabled={false}
-                        loadingEnabled={true}
+                        loadingEnabled={false}
                         showsUserLocation={true}
                         showsMyLocationButton={false}
                         onMapLoaded={()=>{setState({
@@ -258,6 +257,7 @@ const Dashboard = () => {
                             onPress={searchPickup}
                             ref={markerRef} >
                            <CustomMarker  
+                            headerText={'Pickup Location:'}
                             text={address.pickUp} 
                             coordinates={currentLocation} 
                             imgSrc={imagePath.pickupMarker}/>
@@ -272,12 +272,14 @@ const Dashboard = () => {
                                 onPress={searchPickup}
                                 coordinate={state.pickupCords}>
                                 <CustomMarker  
+                                    headerText={'Pickup Location:'}
                                     text={address.pickUp} 
                                     imgSrc={imagePath.pickupMarker}/>
                             </Marker>)}
                         {Object.keys(state.dropCords).length > 0 && (
                         <Marker coordinate={state.dropCords} onPress={searchDestination}>
                             <CustomMarker  
+                                headerText={'Drop Location:'}
                                 text={address.drop} 
                                 imgSrc={imagePath.dropMarker}/>
                         </Marker>
@@ -315,30 +317,16 @@ const Dashboard = () => {
                         </Button>)}
                     </View>
                     <BottomSheetModal 
-                        sty
                         ref={bottomSheetRef}
                         index={0}
                         enablePanDownToClose={true}
+                        backgroundStyle={{borderRadius:20, borderWidth:1, borderColor:'#d6d6d6', elevation:20}}
                         snapPoints={snapPoints}>
-                        <View>
-                            <Text>
-                                Distance: {state.directionDetails.distance} km
-                            </Text>
-                            <Text>
-                                Duration: {state.directionDetails.duration} min.
-                            </Text>
+                        <View style={style.bottomSheetPopup}>
+                            <ReceiverDetails onPress={openBottomSheet}/>
                         </View>
                     </BottomSheetModal>
                 </View>
-                {/* <Portal>
-                    <Dialog visible={currentLocation.length>0} onDismiss={hideDialog}>
-                        <Dialog.Icon icon="alert" />
-                        <Dialog.Title style={styles.title}>This is a title</Dialog.Title>
-                        <Dialog.Content>
-                        <Text variant="bodyMedium">This is simple dialog</Text>
-                        </Dialog.Content>
-                    </Dialog>
-                    </Portal> */}
             </BottomSheetModalProvider>
         </GestureHandlerRootView>
     )

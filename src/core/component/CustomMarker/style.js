@@ -4,8 +4,14 @@ const style = StyleSheet.create({
     currentLocation:{
         flexDirection:'column',
         alignItems:'center',
-        height:75,
-        maxWidth:150,
+        height:92,
+        maxWidth:200,
+     },
+     headerText:{
+        backgroundColor:'#333',
+        color:'#ddd',
+        fontSize:10,
+        verticalAlign:'middle'
      },
      currentLocationText:{
         backgroundColor:'#333',

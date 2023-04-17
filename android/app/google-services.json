@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "164590575824",
+    "project_id": "auth-5a644",
+    "storage_bucket": "auth-5a644.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164590575824:android:a4a92127da5a40fbd6bed5",
+        "android_client_info": {
+          "package_name": "com.loadgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164590575824-e3m4v72uj14k8dfec3efahuqaii9c9cg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFkyfJfwCWzBqMx7l4c2dz-ndJjNIDjx8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164590575824-e3m4v72uj14k8dfec3efahuqaii9c9cg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

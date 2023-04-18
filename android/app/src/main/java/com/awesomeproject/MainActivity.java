@@ -1,4 +1,4 @@
-package com.awesomeproject;
+package com.loadgo;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

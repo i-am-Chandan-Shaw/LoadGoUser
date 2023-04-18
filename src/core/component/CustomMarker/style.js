@@ -4,7 +4,7 @@ const style = StyleSheet.create({
     currentLocation:{
         flexDirection:'column',
         alignItems:'center',
-        height:92,
+        height:94,
         maxWidth:200,
      },
      headerText:{
@@ -20,7 +20,7 @@ const style = StyleSheet.create({
         paddingVertical:5,
         borderRadius:10,
         elevation:20,
-        marginBottom:10
+        marginBottom:10,
      },
      img:{ 
         height: 35, 

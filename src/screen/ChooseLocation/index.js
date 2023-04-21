@@ -10,7 +10,6 @@ const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 
 const ChooseLocation = (props) => {
 
-
     let selectedCoordinates = {
         locationType:'',
         lat: '',

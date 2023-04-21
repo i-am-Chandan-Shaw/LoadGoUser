@@ -9,7 +9,12 @@ const style = StyleSheet.create({
      },
      mapContainer:{
         width: '100%', 
-        height: height
+        height: height - 320
+     },
+     header:{
+      position:'absolute',
+      zIndex:10,
+      margin:5,
      }
 });
 

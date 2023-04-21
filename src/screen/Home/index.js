@@ -3,6 +3,7 @@ import { Provider as PaperProvider, BottomNavigation,Text } from 'react-native-p
 import { Searchbar } from 'react-native-paper';
 import { ScrollView } from "react-native";
 import Dashboard from "../Dashboard";
+import Account from "../Account";
 
 const MusicRoute = () => {
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -19,7 +20,7 @@ const MusicRoute = () => {
     )
 }
 
-const AlbumsRoute = () => <Text>Albums</Text>;
+const AccountRoute = () => <Account/>;
 
 const RecentsRoute = () => <Text>Recents</Text>;
 
@@ -39,7 +40,7 @@ const Home=()=>{
 
     const renderScene = BottomNavigation.SceneMap({
         dashboard: Dashboard,
-        albums: AlbumsRoute,
+        albums: AccountRoute,
         recents: RecentsRoute,
         notifications: NotificationsRoute,
         

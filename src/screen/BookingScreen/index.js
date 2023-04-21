@@ -1,15 +1,18 @@
 import React,{ useState, useRef, useEffect, } from 'react';
-import { View,Dimensions } from 'react-native';
+import { View,Dimensions,Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {  useNavigation } from '@react-navigation/native';
 import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
-import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet';
 import MapViewDirections from 'react-native-maps-directions';
 import {REACT_APP_MAPS_API} from '@env';
 import CustomMarker from '../../core/component/CustomMarker';
-import ReceiverDetails from '../../core/View/ReceiverDetails';
+import {  Button } from 'react-native-paper';
 import imagePath from '../../constants/imagePath';
 import style from './style';
+import ChooseVehicle from '../../core/View/ChooseVehicle';
+import IonicIcon from 'react-native-vector-icons/Ionicons'
+
 
 
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
@@ -20,52 +23,65 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 
 
-const BookingScreen=()=>{
-
+const BookingScreen=(props)=>{
 
 const navigation = useNavigation()
 const bottomSheetRef = useRef(null)
 const mapRef= useRef();
-const snapPoints=[270];
+const snapPoints=[340,380];
 
-const [locationArr, setLocationArr]= useState([
-    {latitude: 22.5629, longitude: 88.3196},
-    {latitude: 22.5229, longitude: 88.3462},
-    {latitude: 22.5959, longitude: 88.3262}
-]);
+const markerArr=[]
 
-var markerArr=[]
+// const [locationArr, setLocationArr]= useState([
+//     {latitude: 22.5629, longitude: 88.3196},
+//     {latitude: 22.5229, longitude: 88.3462},
+//     {latitude: 22.5959, longitude: 88.3262}
+// ]);
+
+
+const [state,setState]=useState({
+    pickupCoords:{},
+    dropCoords:{}
+})
 
 useEffect(()=>{
-    setMarkers()
-},[locationArr])
+    bottomSheetRef.current?.present();
+    setState({
+        pickupCoords:props.route.params.locationDetails.pickup,
+        dropCoords:props.route.params.locationDetails.drop,
+    })
+    console.log(state);
+},[])
 
-const setMarkers = ()=>{
-    for(let i = 0; i < locationArr.length; i++){
-        console.log('dasd');
-        markerArr.push(
-            <View key={i}>
-                <Marker 
-                onPress={searchLocation}
-                coordinate={{
-                    latitude: locationArr[i].latitude,
-                    longitude: locationArr[i].longitude,
-                    latitudeDelta: LATITUDE_DELTA,
-                    longitudeDelta: LONGITUDE_DELTA,
-                }}>
-                <CustomMarker  
-                    headerText={''}
-                    text={'Stop '+(i+1)} 
-                    imgSrc={imagePath.otherPin}/>
-            </Marker>
-            </View>
-        )
-    }
+// const setMarkers = ()=>{
+//     for(let i = 0; i < locationArr.length; i++){
+//         markerArr.push(
+//             <View key={i}>
+//                 <Marker 
+//                 onPress={searchLocation}
+//                 coordinate={{
+//                     latitude: locationArr[i].latitude,
+//                     longitude: locationArr[i].longitude,
+//                     latitudeDelta: LATITUDE_DELTA,
+//                     longitudeDelta: LONGITUDE_DELTA,
+//                 }}>
+//                 <CustomMarker  
+//                     headerText={''}
+//                     text={'Stop '+(i+1)} 
+//                     imgSrc={imagePath.otherPin}/>
+//             </Marker>
+//             </View>
+//         )
+//     }
+// }
+
+const goBack= ()=>{
+    props.navigation.goBack()
 }
 
 
 const searchLocation = () => {
-    // navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:'drop' })
+    navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:'drop' })
 }
 
 
@@ -73,6 +89,11 @@ return (
     <GestureHandlerRootView>
     <BottomSheetModalProvider>
         <View style={style.container}>
+            <View style={style.header}>
+                <TouchableOpacity onPress={goBack}>
+                    <IonicIcon name="arrow-back-circle" size={40} color={'#222'}/>
+                </TouchableOpacity>
+            </View>
             <MapView ref={mapRef} style={style.mapContainer}
                 initialRegion={{
                     latitude: 22.5629,
@@ -91,12 +112,7 @@ return (
 
                 <Marker 
                     onPress={searchLocation}
-                    coordinate={{
-                        latitude: 22.5229,
-                        longitude: 88.3362,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA,
-                    }}>
+                    coordinate={state.dropCoords}>
                     <CustomMarker  
                         headerText={''}
                         text={'Drop'} 
@@ -105,11 +121,7 @@ return (
 
                 <Marker 
                     onPress={searchLocation}
-                    coordinate={{ 
-                        latitude: 22.5929, 
-                        longitude: 88.3062,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA, }}>
+                    coordinate={state.pickupCoords}>
                     <CustomMarker  
                         headerText={''}
                         text={'Pickup'} 
@@ -117,24 +129,9 @@ return (
                 </Marker>
 
 
-                <MapViewDirections
-                    origin={
-                        {
-                            latitude: 22.5929, 
-                            longitude: 88.3062,
-                            latitudeDelta: LATITUDE_DELTA,
-                            longitudeDelta: LONGITUDE_DELTA,
-                        }
-                    }
-                    destination={
-                        {
-                            latitude: 22.5229,
-                            longitude: 88.3362,
-                            latitudeDelta: LATITUDE_DELTA,
-                            longitudeDelta: LONGITUDE_DELTA,
-                        }
-                    }
-                    waypoints={locationArr}
+                {Object.keys(state.dropCoords).length != 0 && (<MapViewDirections
+                    origin={state.pickupCoords}
+                    destination={state.dropCoords}
                     apikey={GOOGLE_MAPS_API_KEY}
                     strokeWidth={3}
                     strokeColor='#666'
@@ -147,17 +144,18 @@ return (
                             
                         });
                     }}
-                />
+                />)}
             </MapView>
 
             <BottomSheetModal 
                 ref={bottomSheetRef}
                 index={0}
-                enablePanDownToClose={true}
+                enablePanDownToClose={false}
                 backgroundStyle={{borderRadius:20, borderWidth:1, borderColor:'#d6d6d6', elevation:20}}
                 snapPoints={snapPoints}>
                 <View style={style.bottomSheetPopup}>
-                    <ReceiverDetails/>
+                    <ChooseVehicle/>
+                    
                 </View>
             </BottomSheetModal>
         </View>

@@ -9,7 +9,7 @@ const style = StyleSheet.create({
    backButton:{
       position:'absolute',
       zIndex:100,
-      top:15
+      top:5
    },
    bottomContainer:{
       borderTopRightRadius:30,

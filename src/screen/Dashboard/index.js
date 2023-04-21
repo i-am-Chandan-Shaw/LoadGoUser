@@ -77,7 +77,8 @@ const Dashboard = () => {
             const status = await locationPermission()
             if (status) {
                 const {latitude,longitude} = await getCurrentLocation();
-                animate(latitude,longitude)
+                animate(latitude,longitude);
+                onCenter();
                 setCurrentLocation((currentLoc)=>{
                     return ({
                         latitude:latitude,
@@ -164,11 +165,6 @@ const Dashboard = () => {
                 drop: data.selectedAddress,
             });
         }
-
-        
-        
-
-        // bottomSheetRef.current?.present()
     }
 
     const onCenter= () =>{
@@ -178,8 +174,6 @@ const Dashboard = () => {
             latitudeDelta:LATITUDE_DELTA,
             longitudeDelta:LONGITUDE_DELTA
         });
-        openBottomSheet();
-
     }
 
     const getAddressFromCoordinates=(latitude, longitude) =>{
@@ -224,6 +218,15 @@ const Dashboard = () => {
         });
 
         onCenter();
+        bottomSheetRef.current?.close()
+    }
+
+    const bookVehicle=()=>{
+        const details={
+            pickup:state.pickupCords,
+            drop:state.dropCords
+        }
+        navigation.navigate('BookingScreen', {locationDetails:details})
     }
 
     return (
@@ -231,7 +234,9 @@ const Dashboard = () => {
             <BottomSheetModalProvider>
                 <View style={style.container}>
                     {Object.keys(state.dropCords).length > 0 &&(<TouchableOpacity onPress={cancelRoute} style={style.backButton}>
+                       <View style={{marginLeft:5}}>
                         <IonicIcon name="arrow-back-circle" size={40} color={'#222'}/>
+                       </View>
                     </TouchableOpacity>)}
                     {Object.keys(state.dropCords).length == 0 && (<LocationInputButton
                         onPress={searchDestination}
@@ -300,6 +305,7 @@ const Dashboard = () => {
                                 console.log(`Distance: ${result.distance} km`)
                                 console.log(`Duration: ${result.duration} min.`)
 
+
                                 mapRef.current.fitToCoordinates(result.coordinates, {
                                     
                                 });
@@ -319,11 +325,11 @@ const Dashboard = () => {
                     <BottomSheetModal 
                         ref={bottomSheetRef}
                         index={0}
-                        enablePanDownToClose={true}
+                        enablePanDownToClose={false}
                         backgroundStyle={{borderRadius:20, borderWidth:1, borderColor:'#d6d6d6', elevation:20}}
                         snapPoints={snapPoints}>
                         <View style={style.bottomSheetPopup}>
-                            <ReceiverDetails onPress={openBottomSheet}/>
+                            <ReceiverDetails onPress={bookVehicle}/>
                         </View>
                     </BottomSheetModal>
                 </View>

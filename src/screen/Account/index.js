@@ -1,26 +1,32 @@
-import React ,  {useState, useEffect} from 'react';
-import { View,Text, Pressable } from 'react-native';
-import { ProgressBar, MD3Colors } from 'react-native-paper';
+import React  from 'react';
+import { View, Text} from 'react-native';
+import { Avatar } from 'react-native-paper';
+import style from './style';
+import AccountList from '../../core/component/AccountList';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+
+
 
 const Account=()=>{
+    
 
-    const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    setInterval(() => {
-        if(progress < 1) {
-            setProgress((progress)=>{
-                return progress+0.01;
-            });
-          }
-    }, 100);
-  },[]);
 
 return (
-    <View style={{top:200}}>
-        <ProgressBar  animatedValue={progress} color={MD3Colors.error50} />
-        <Pressable style={{borderColor:'#333', padding:10, margin:10, backgroundColor:'#ddd', top:50}}>
-            <Text>Start Animation</Text>
-        </Pressable>
+    <View>
+        <View style={style.headerContainer}>
+            <Avatar.Icon size={50} icon="account" color='#fff' style={{backgroundColor:'#858f9e'}}  />
+            <View style={style.headerTextContainer}>
+                <Text numberOfLines={1} style={style.nameText}>Chandan Kumar Shaw</Text>
+                <View style={style.subHeaderTextContainer}>
+                    <Text style={style.phoneText}>+91 9874771340</Text>
+                    <View style={style.editContainer}>
+                        <FeatherIcon name='edit' size={16} color='#000' />
+                    </View>
+                </View>
+                {/* <Text style={style.emailText}>chandanshaw@gmail.com</Text> */}
+            </View>
+        </View>
+        <AccountList/>
     </View>
     )
 }

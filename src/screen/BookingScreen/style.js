@@ -14,7 +14,12 @@ const style = StyleSheet.create({
      header:{
       position:'absolute',
       zIndex:10,
-      margin:5,
+      padding:10,
+      width:'100%',
+      flexDirection:'row',
+      alignItems:'center',
+      justifyContent:'space-between',
+
      }
 });
 

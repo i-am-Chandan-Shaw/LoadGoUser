@@ -1,17 +1,19 @@
 import React,{ useState, useRef, useEffect, } from 'react';
-import { View,Dimensions,Text } from 'react-native';
+import { View,Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {  useNavigation } from '@react-navigation/native';
-import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { BottomSheetModal, BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet';
 import MapViewDirections from 'react-native-maps-directions';
 import {REACT_APP_MAPS_API} from '@env';
 import CustomMarker from '../../core/component/CustomMarker';
-import {  Button } from 'react-native-paper';
 import imagePath from '../../constants/imagePath';
 import style from './style';
 import ChooseVehicle from '../../core/View/ChooseVehicle';
-import IonicIcon from 'react-native-vector-icons/Ionicons'
+import IonicIcon from 'react-native-vector-icons/Ionicons';
+import MatIcon from 'react-native-vector-icons/MaterialIcons';
+import { Button } from 'react-native-paper';
+import BookingProgress from '../../core/View/BookingProgress';
 
 
 
@@ -42,7 +44,9 @@ const markerArr=[]
 const [state,setState]=useState({
     pickupCoords:{},
     dropCoords:{}
-})
+});
+
+const [screenType, setScreenType]= useState('chooseVehicle')
 
 useEffect(()=>{
     bottomSheetRef.current?.present();
@@ -50,7 +54,6 @@ useEffect(()=>{
         pickupCoords:props.route.params.locationDetails.pickup,
         dropCoords:props.route.params.locationDetails.drop,
     })
-    console.log(state);
 },[])
 
 // const setMarkers = ()=>{
@@ -76,14 +79,20 @@ useEffect(()=>{
 // }
 
 const goBack= ()=>{
+    setScreenType('chooseVehicle')
     props.navigation.goBack()
 }
 
+const cancelRide=()=>{
+    navigation.reset({
+        index: 0,
+        routes: [{name: 'Home'}],
+      });
+}
 
 const searchLocation = () => {
     navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:'drop' })
 }
-
 
 return (
     <GestureHandlerRootView>
@@ -92,6 +101,9 @@ return (
             <View style={style.header}>
                 <TouchableOpacity onPress={goBack}>
                     <IonicIcon name="arrow-back-circle" size={40} color={'#222'}/>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={cancelRide}>
+                    <Button mode='contained' textColor='#fff' style={{backgroundColor:'#222'}}>Cancel Ride</Button>
                 </TouchableOpacity>
             </View>
             <MapView ref={mapRef} style={style.mapContainer}
@@ -154,7 +166,8 @@ return (
                 backgroundStyle={{borderRadius:20, borderWidth:1, borderColor:'#d6d6d6', elevation:20}}
                 snapPoints={snapPoints}>
                 <View style={style.bottomSheetPopup}>
-                    <ChooseVehicle/>
+                    {screenType=='chooseVehicle' && <ChooseVehicle onPress={()=>{ setScreenType('bookingProgress')}} />}
+                    {screenType=='bookingProgress' && <BookingProgress onPress={()=>{ setScreenType('chooseVehicle')}} />}
                     
                 </View>
             </BottomSheetModal>

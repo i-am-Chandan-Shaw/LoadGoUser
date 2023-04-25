@@ -1,44 +1,44 @@
 import { StyleSheet } from 'react-native'
 
 const style = StyleSheet.create({
-    container:{
+    container: {
         flexDirection: 'column',
-        alignItems:'center',
-        justifyContent:'center',
-        width:100
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 100
     },
-    vehicle:{
+    vehicle: {
         borderWidth: 1,
-        width: 75,
-        height: 75,
+        width: 80,
+        height: 80,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 30,
-        borderColor: '#d6d6d6',
+        borderRadius: 40,
+        borderColor: '#ddd',
         overflow: 'hidden',
     },
     selectedVehicle: {
         backgroundColor: '#c2e6f4',
-        borderColor: '#666'
+        borderColor: '#aaa'
     },
-    image:{
-        height:50, 
-        width:70
+    image: {
+        height: 50,
+        width: 70,
     },
-    vehicleText:{
-        color:'#333',
-        fontSize:16, 
-        fontWeight:400,
-        marginBottom:10
+    vehicleText: {
+        color: '#333',
+        fontSize: 16,
+        fontWeight: 400,
+        marginBottom: 10
     },
-    amountText:{
-        color:'#333',
-        fontSize:18, 
-        fontWeight:400,
+    amountText: {
+        color: '#333',
+        fontSize: 18,
+        fontWeight: 400,
     },
-    selectedText:{
-        fontWeight:600
+    selectedText: {
+        fontWeight: 600
     }
 
 });

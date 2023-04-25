@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Dimensions, Text, Image, Platform, TouchableOpacity } from 'react-native';
+import { View, Dimensions, Image, Platform, TouchableOpacity } from 'react-native';
 import {  useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import MapViewDirections from 'react-native-maps-directions';
 import LocationInputButton from '../../core/component/LocationInputButton';
-import { locationPermission, getCurrentLocation } from '../../core/helper/helper';
+import { locationPermission, getCurrentLocation, getAddressFromCoordinates } from '../../core/helper/helper';
 import imagePath from '../../constants/imagePath';
 import style from './style';
 import {REACT_APP_MAPS_API} from '@env';
@@ -79,7 +79,7 @@ const Dashboard = () => {
                 const {latitude,longitude} = await getCurrentLocation();
                 animate(latitude,longitude);
                 onCenter();
-                setCurrentLocation((currentLoc)=>{
+                setCurrentLocation(()=>{
                     return ({
                         latitude:latitude,
                         longitude:longitude,
@@ -122,12 +122,8 @@ const Dashboard = () => {
         }
     }
 
-    const searchDestination = () => {
-        navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:'drop' })
-    }
-
-    const searchPickup = () => {
-        navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:'pickup' })
+    const searchLocation=(searchType)=>{
+        navigation.navigate('ChooseLocation', { getCoordinates: fetchValues, locationType:searchType })
     }
 
     const fetchValues = (data) => {
@@ -176,30 +172,6 @@ const Dashboard = () => {
         });
     }
 
-    const getAddressFromCoordinates=(latitude, longitude) =>{
-        return new Promise((resolve, reject) => {
-          fetch(
-            'https://maps.googleapis.com/maps/api/geocode/json?address=' +
-              latitude +
-              ',' +
-              longitude +
-              '&key=' +
-              GOOGLE_MAPS_API_KEY,
-          )
-            .then(response => response.json())
-            .then(responseJson => {
-              if (responseJson.status === 'OK') {
-                resolve(responseJson?.results?.[3]?.formatted_address);
-              } else {
-                reject('not found');
-              }
-            })
-            .catch(error => {
-              reject(error);
-            });
-        });
-      }
-
     const openBottomSheet=()=>{
         bottomSheetRef.current?.present()
     }
@@ -239,7 +211,7 @@ const Dashboard = () => {
                        </View>
                     </TouchableOpacity>)}
                     {Object.keys(state.dropCords).length == 0 && (<LocationInputButton
-                        onPress={searchDestination}
+                        onPress={()=>{searchLocation('drop')}}
                         iconColor={'#800000'}
                         textColor={address.drop == '' ? '#aaaa' : '#000'}
                         text={address.drop == '' ? 'Enter Drop Location' : address.drop} />)}
@@ -259,7 +231,7 @@ const Dashboard = () => {
                         {/* Current Location Marker */}
                         {Object.keys(state.pickupCords).length == 0 && (<Marker.Animated 
                             coordinate={state.coordinate} 
-                            onPress={searchPickup}
+                            onPress={()=>{searchLocation('pickup')}}
                             ref={markerRef} >
                            <CustomMarker  
                             headerText={'Pickup Location:'}
@@ -274,7 +246,7 @@ const Dashboard = () => {
 
                         {Object.keys(state.pickupCords).length > 0 && (
                             <Marker 
-                                onPress={searchPickup}
+                                onPress={()=>{searchLocation('pickup')}}
                                 coordinate={state.pickupCords}>
                                 <CustomMarker  
                                     headerText={'Pickup Location:'}
@@ -282,7 +254,7 @@ const Dashboard = () => {
                                     imgSrc={imagePath.pickupMarker}/>
                             </Marker>)}
                         {Object.keys(state.dropCords).length > 0 && (
-                        <Marker coordinate={state.dropCords} onPress={searchDestination}>
+                        <Marker coordinate={state.dropCords} onPress={()=>{searchLocation('drop')}}>
                             <CustomMarker  
                                 headerText={'Drop Location:'}
                                 text={address.drop} 
@@ -312,7 +284,6 @@ const Dashboard = () => {
                             }}
                         />}
                     </MapView>
-                    
                     <View style={style.bottomContainer}>
                         <TouchableOpacity style={style.onCenterContainer} onPress={onCenter} >
                             <Image source={imagePath.liveLocationBtn} />

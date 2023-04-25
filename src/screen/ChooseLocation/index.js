@@ -1,4 +1,4 @@
-import React, { Fragment }  from 'react';
+import React  from 'react';
 import { View,Text, Pressable } from 'react-native';
 import GoogleAutocomplete from '../../core/component/GoogleAutocomplete';
 import {REACT_APP_MAPS_API} from '@env'

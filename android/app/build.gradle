@@ -169,6 +169,11 @@ dependencies {
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
 
+    // Gif extention
+    implementation 'com.facebook.fresco:animated-gif:2.6.0'
+    implementation 'com.facebook.fresco:animated-webp:2.0.0'
+    implementation 'com.facebook.fresco:webpsupport:2.0.0'
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.squareup.okhttp3', module:'okhttp'
@@ -186,5 +191,5 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf','FontAwesome.ttf','MaterialCommunityIcons.ttf', 'EvilIcons.ttf','AntDesign.ttf','Ionicons.ttf','Entypo.ttf' ] // Name of the font files you want to copy
+    iconFontNames: [ 'MaterialIcons.ttf','FontAwesome.ttf','MaterialCommunityIcons.ttf', 'EvilIcons.ttf','AntDesign.ttf','Ionicons.ttf','Entypo.ttf','Feather.ttf' ] // Name of the font files you want to copy
 ]

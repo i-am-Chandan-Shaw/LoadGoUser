@@ -4,6 +4,7 @@ import { Avatar } from 'react-native-paper';
 import style from './style';
 import AccountList from '../../core/component/AccountList';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import AppTextInput from '../../core/component/AppTextInput';
 
 
 

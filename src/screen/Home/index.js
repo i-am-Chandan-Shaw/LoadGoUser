@@ -4,6 +4,7 @@ import { Searchbar } from 'react-native-paper';
 import { ScrollView } from "react-native";
 import Dashboard from "../Dashboard";
 import Account from "../Account";
+import Login from "../Login";
 
 const MusicRoute = () => {
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -22,14 +23,14 @@ const MusicRoute = () => {
 
 const AccountRoute = () => <Account/>;
 
-const RecentsRoute = () => <Text>Recents</Text>;
+const RecentsRoute = () => <Login/>;
 
 const NotificationsRoute = () => <Text>Notifications</Text>;
 
 
 
 const Home=()=>{
-    const [index, setIndex] = React.useState(0);
+    const [index, setIndex] = React.useState(2);
     
     const [routes] = React.useState([
         { key: 'dashboard', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home'},

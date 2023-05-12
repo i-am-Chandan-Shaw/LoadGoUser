@@ -33,7 +33,6 @@ const style = StyleSheet.create({
     signInButton: {
         padding: Spacing * 2,
         backgroundColor: Colors.primary,
-        marginVertical: Spacing * 3,
         borderRadius: Spacing,
         shadowColor: Colors.primary,
         shadowOffset: {
@@ -42,15 +41,39 @@ const style = StyleSheet.create({
         },
         shadowOpacity: 0.3,
         shadowRadius: Spacing,
+        flexDirection:'row',
+        justifyContent:'center'
+    },
+    signInButtonDisabled:{
+        opacity:0.5,
+        padding: Spacing * 2,
+        backgroundColor: Colors.primary,
+        borderRadius: Spacing,
+        shadowColor: Colors.primary,
+        shadowOffset: {
+            width: 0,
+            height: Spacing,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: Spacing,
+        flexDirection:'row',
+        justifyContent:'center'
     },
     signInText: {
         color: Colors.onPrimary,
         textAlign: "center",
         fontSize: FontSize.large,
+        marginRight:10
     },
     semiboldText: {
         fontFamily: 'Poppins-SemiBold',
         color: Colors.text,
+        textAlign: "center",
+        fontSize: FontSize.small,
+    },
+    activeText: {
+        fontFamily: 'Poppins-SemiBold',
+        color: 'green',
         textAlign: "center",
         fontSize: FontSize.small,
     },
@@ -64,7 +87,7 @@ const style = StyleSheet.create({
         backgroundColor: Colors.gray,
         borderRadius: Spacing / 2,
         marginHorizontal: Spacing,
-    }
+    },
 });
 
 export default style;

@@ -11,7 +11,7 @@ import Font from "../../../constants/Font";
 import FontSize from "../../../constants/FontSize";
 
 
-const AppTextInput = ({ ...otherProps }) => {
+const AppTextInput = ({ type, ...otherProps }) => {
     const Spacing=10;
     const [focused, setFocused] = useState(false);
     return (
@@ -22,13 +22,14 @@ const AppTextInput = ({ ...otherProps }) => {
             style={[
                 {
                     fontFamily: Font["poppins-regular"],
-                    fontSize: FontSize.small,
+                    fontSize: type? FontSize.xLarge: FontSize.medium,
                     padding: Spacing * 2,
                     backgroundColor: Colors.lightPrimary,
                     borderRadius: Spacing,
                     marginVertical: Spacing,
                     borderWidth: 3,
-                    borderColor:'transparent'
+                    borderColor:'transparent',
+                    height:80
                 },
                 focused && {
                     borderWidth: 3,
@@ -37,6 +38,7 @@ const AppTextInput = ({ ...otherProps }) => {
                     shadowColor: Colors.primary,
                     shadowOpacity: 0.2,
                     shadowRadius: Spacing,
+                    height:80
                 },
             ]}
             {...otherProps}

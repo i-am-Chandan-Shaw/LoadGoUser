@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "487269230459",
+    "project_id": "loadgo2023-66c3f",
+    "storage_bucket": "loadgo2023-66c3f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487269230459:android:27f5162279a7ef82997fde",
+        "android_client_info": {
+          "package_name": "com.loadgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "487269230459-5b4trkuunhfhfl0ppkcp0r16ebeqbb2h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loadgo",
+            "certificate_hash": "475fa6bde7f60e6517ff6e4775e45ed6c98babba"
+          }
+        },
+        {
+          "client_id": "487269230459-1r00h431fdveee4ertkq3ro97nmf13r6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVSkTisTIU9YgCAcDqFzpyR3u6PJ-CVsg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "487269230459-1r00h431fdveee4ertkq3ro97nmf13r6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -23,14 +23,14 @@ const MusicRoute = () => {
 
 const AccountRoute = () => <Account/>;
 
-const RecentsRoute = () => <Login/>;
+const RecentsRoute = () => <Account/>;
 
 const NotificationsRoute = () => <Text>Notifications</Text>;
 
 
 
 const Home=()=>{
-    const [index, setIndex] = React.useState(2);
+    const [index, setIndex] = React.useState(0);
     
     const [routes] = React.useState([
         { key: 'dashboard', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home'},

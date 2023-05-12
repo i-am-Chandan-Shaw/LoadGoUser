@@ -5,7 +5,7 @@ import style from './style';
 const SplashScreen=({navigation})=>{
 
     setTimeout(() => {
-        navigation.replace('Home')
+        navigation.replace('Login')
     }, 1000);
 
 return (

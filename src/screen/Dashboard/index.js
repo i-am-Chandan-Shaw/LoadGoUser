@@ -14,7 +14,6 @@ import CustomMarker from '../../core/component/CustomMarker';
 import IonicIcon from 'react-native-vector-icons/Ionicons'
 import { Button } from 'react-native-paper';
 import ReceiverDetails from '../../core/View/ReceiverDetails';
-
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -49,6 +48,11 @@ const Dashboard = () => {
         }),
         isLoading:true,
         currentAddress:''
+    });
+    const [amount, setAmount]= useState({
+        tataAce:null,
+        bolero:null,
+        bike:null
     });
 
     useEffect(()=>{
@@ -196,7 +200,8 @@ const Dashboard = () => {
     const bookVehicle=()=>{
         const details={
             pickup:state.pickupCords,
-            drop:state.dropCords
+            drop:state.dropCords,
+            amount:amount,
         }
         navigation.navigate('BookingScreen', {locationDetails:details})
     }
@@ -265,6 +270,7 @@ const Dashboard = () => {
                         <MapViewDirections
                             origin={state.pickupCords}
                             destination={state.dropCords}
+                            
                             apikey={GOOGLE_MAPS_API_KEY}
                             strokeWidth={3}
                             strokeColor='#666'
@@ -274,10 +280,23 @@ const Dashboard = () => {
                                     ...state,
                                     directionDetails:result
                                 })
-                                console.log(`Distance: ${result.distance} km`)
-                                console.log(`Duration: ${result.duration} min.`)
 
+                                let kmPrice=60;
+                                let tataAceFare = 250 + (result.distance * kmPrice);;
+                                let boleroFare = 350 + (result.distance * kmPrice);
+                                if(result.duration>120){
+                                    tataAceFare = tataAceFare + ((result.duration - 120)*2);
+                                    boleroFare = boleroFare + ((result.duration - 120)*2);
+                                }
 
+                                setAmount({
+                                    tataAce:parseInt(tataAceFare),
+                                    bolero:parseInt(boleroFare),
+                                    bike:parseInt(tataAceFare*0.6)
+                                })
+
+                                console.log(result.coordinates);
+                                
                                 mapRef.current.fitToCoordinates(result.coordinates, {
                                     
                                 });

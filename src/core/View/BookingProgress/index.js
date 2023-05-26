@@ -4,6 +4,7 @@ import * as Progress from 'react-native-progress';
 import style from './style';
 import { Button } from 'react-native-paper';
 import imagePath from '../../../constants/imagePath';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 const BookingProgress = ({onPress}) => {
     const textArr=[
@@ -63,6 +64,13 @@ const BookingProgress = ({onPress}) => {
             <Button style={style.secondaryButton} mode='contained' onPress={onPress} >
                 <Text style={{fontSize:16, color:'#333'}}>Cancel Ride</Text>
             </Button>
+            <View style={style.pickupContainer}>
+                <Text style={{color:'#000', fontSize:15, fontWeight:600}}>Pickup Contact</Text>
+                <View style={{marginRight:5}}></View>
+                <EntypoIcon name="chevron-right" size={20} color={'#000'} />
+                <View style={{marginRight:10}}></View>
+                <Text style={{color:'#000', fontSize:16, fontWeight:600}}>Chandan Shaw (8240122319)</Text>
+            </View>
         </View>
 
     )

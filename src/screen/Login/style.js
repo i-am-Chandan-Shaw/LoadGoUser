@@ -88,6 +88,11 @@ const style = StyleSheet.create({
         borderRadius: Spacing / 2,
         marginHorizontal: Spacing,
     },
+    editPhone:{
+        height:30,
+        flexDirection:'row',
+        alignItems:'center'
+    }
 });
 
 export default style;

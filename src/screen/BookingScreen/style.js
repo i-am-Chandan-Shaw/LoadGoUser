@@ -20,6 +20,11 @@ const style = StyleSheet.create({
       alignItems:'center',
       justifyContent:'space-between',
 
+     },
+     radioItem:{
+      flexDirection:'row',
+      alignItems:'center',
+      paddingBottom:10
      }
 });
 

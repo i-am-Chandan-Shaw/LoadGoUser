@@ -29,7 +29,13 @@ const style = StyleSheet.create({
         textAlign:'center',
         color:'#333',
         fontSize:18
-    }
+    },
+    pickupContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 10,
+        marginTop: 20
+     },
 });
 
 export default style;

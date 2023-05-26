@@ -6,10 +6,18 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import imagePath from '../../../constants/imagePath';
 import Vehicle from '../../component/Vehicle';
 
-const ChooseVehicle=({onPress})=>{
+
+const ChooseVehicle=({onPress, amount, paymentMode, changeMethod})=>{
+
+    useEffect(()=>{
+        console.log(amount);
+    },[])
+
+    
+
 
 const [vehicle, setVehicle] = useState('tataAce')
-const [totalAmount,setTotalAmount]=useState(1246)
+const [totalAmount,setTotalAmount]=useState(amount.tataAce)
 
 const selectPickupVehicle=(vehicleType,amount)=>{
     setVehicle(()=>{
@@ -30,38 +38,42 @@ const cashIcon= ()=>{
 return (
     <View style={style.container}>
         <View style={style.vehicleContainer}>
-            <Vehicle 
-                onPress={()=>{selectPickupVehicle('bike',749)}}
+            {/* <Vehicle 
+                isDisabled={true}
+                onPress={()=>{selectPickupVehicle('bike',amount.bike)}}
                 isSelected={vehicle=='bike'}
-                amount={749}
+                amount={amount.bike}
                 vehicleName={'Bike'}
                 imgPath={imagePath.bike}
-                />
+                /> */}
             <Vehicle 
-                onPress={()=>{selectPickupVehicle('tataAce',1246)}}
+                onPress={()=>{selectPickupVehicle('tataAce',amount.tataAce)}}
                 isSelected={vehicle=='tataAce'}
-                amount={1246}
+                amount={amount.tataAce}
                 vehicleName={'Tata Ace'}
                 imgPath={imagePath.tataAce}
                 />
             <Vehicle 
-                onPress={()=>{selectPickupVehicle('bolero',928)}}
+                onPress={()=>{selectPickupVehicle('bolero',amount.bolero)}}
                 isSelected={vehicle=='bolero'}
-                amount={928}
+                amount={amount.bolero}
                 vehicleName={'Bolero'}
                 imgPath={imagePath.bolero}
                 />
         </View>
+        
         <View style={style.confirmView}>
             <View style={style.paymentSection}>
                 <View style={style.paymentOption}> 
                         <Text style={{color:'#000', fontSize:18, fontWeight:600}}>₹ {totalAmount}</Text>
                         <View style={{marginRight:10}}></View>
-                    <View style={style.paymentDropdown}>
-                        <Text style={{color:'#000', fontSize:18, fontWeight:600}}>Online</Text>
-                        <View style={{marginRight:10}}></View>
-                        <EntypoIcon name="chevron-down" size={20} color={'#000'} /> 
-                    </View>
+                        <Pressable onPress={changeMethod}>
+                            <View style={style.paymentDropdown}>
+                                    <Text style={{color:'#000', fontSize:18, fontWeight:600}}>{paymentMode}</Text>
+                                    <View style={{marginRight:10}}></View>
+                                    <EntypoIcon name="chevron-down" size={20} color={'#000'} /> 
+                            </View>
+                        </Pressable>
                 </View>
                 <View style={style.verticalBorder}></View>
                 <View style={style.coupon}> 

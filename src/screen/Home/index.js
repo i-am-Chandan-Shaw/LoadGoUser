@@ -5,6 +5,7 @@ import { ScrollView } from "react-native";
 import Dashboard from "../Dashboard";
 import Account from "../Account";
 import Login from "../Login";
+import RideHistory from "../TripHistory";
 
 const MusicRoute = () => {
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -23,14 +24,14 @@ const MusicRoute = () => {
 
 const AccountRoute = () => <Account/>;
 
-const RecentsRoute = () => <Account/>;
+const Booking = () => <RideHistory/>;
 
 const NotificationsRoute = () => <Text>Notifications</Text>;
 
 
 
 const Home=()=>{
-    const [index, setIndex] = React.useState(0);
+    const [index, setIndex] = React.useState(2);
     
     const [routes] = React.useState([
         { key: 'dashboard', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home'},
@@ -42,7 +43,7 @@ const Home=()=>{
     const renderScene = BottomNavigation.SceneMap({
         dashboard: Dashboard,
         albums: AccountRoute,
-        recents: RecentsRoute,
+        recents: Booking,
         notifications: NotificationsRoute,
         
   });

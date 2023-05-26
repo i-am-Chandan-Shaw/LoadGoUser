@@ -3,16 +3,17 @@ import { View,Image,Text, Pressable } from 'react-native';
 import style from './style';
 
 
-const Vehicle=({imgPath,styles,onPress, amount, isSelected, vehicleName})=>{
+const Vehicle=({imgPath,styles,onPress, amount, isSelected, vehicleName, isDisabled})=>{
 return (
     <View style={style.container}>
         <Text style={[style.vehicleText,
             isSelected?style.selectedText:{} ]}>
             {vehicleName}</Text>
         <Pressable  
-            onPress={onPress} 
+            onPress={onPress}
             style={[style.vehicle, isSelected?style.selectedVehicle:{}]}>
             <Image style={style.image} source={imgPath}/>
+            {isDisabled && <View style={style.overlay}/>}
         </Pressable>
         <Text style={[style.amountText,
             isSelected?style.selectedText:{} ]}>₹ {amount}</Text>

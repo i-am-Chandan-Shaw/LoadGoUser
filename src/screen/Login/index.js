@@ -11,24 +11,31 @@ import style from "./style";
 import auth from '@react-native-firebase/auth';
 import { ActivityIndicator } from 'react-native-paper';
 import { Snackbar } from 'react-native-paper';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
     const [phone, setPhone] = useState(null)
     const [valid, setValid] = useState(null)
     const [count, setCount] = useState(120)
     const [confirm, setConfirm] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [visible, setVisible] = React.useState(false);
+    const [visible, setVisible] = useState(false);
     const [intervalId, setIntervalId] = useState(null);
 
 
     const onToggleSnackBar = () => setVisible(!visible);
     const onDismissSnackBar = () => setVisible(false);
 
-    const navigateToHome=()=>{
+    const navigateToHome = () => {
         navigation.replace('Home')
     }
+
+    useEffect(() => {
+        checkAuthentication()
+        
+    }, []);
 
     const handleResendOTP = () => {
         if (!intervalId) {
@@ -55,6 +62,7 @@ const Login = ({navigation}) => {
     function onAuthStateChanged(user) {
         if (user) {
             console.log(user);
+            setAuthenticated()
             navigateToHome();
             // Some Android devices can automatically process the verification code (OTP) message, and the user would NOT need to enter the code.
             // Actually, if he/she tries to enter it, he/she will get an error message because the code was already used in the background.
@@ -63,10 +71,38 @@ const Login = ({navigation}) => {
         }
     }
 
-    useEffect(() => {
-        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        return subscriber; // unsubscribe on unmount
-    }, []);
+
+
+    // Set local storage
+    const setAuthenticated = async () => {
+        try {
+            await AsyncStorage.setItem('isLoggedIn', 'true');
+            console.log('Data saved successfully!');
+        } catch (error) {
+            console.log('Error saving data:', error);
+        }
+    }
+
+    const checkAuthentication = async () => {
+        try {
+            const value = await AsyncStorage.getItem('isLoggedIn');
+            if (value !== null) {
+                console.log('Retrieved data:', value);
+                if(value=='true'){
+                    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+                    return subscriber; // unsubscribe on unmount
+                }
+                else
+                    return false
+            } else {
+                console.log('Data not found!');
+                return false
+            }
+        } catch (error) {
+            console.log('Error retrieving data:', error);
+            return false
+        }
+    }
 
     // Handle the button press
     async function signInWithPhoneNumber(phoneNumber) {
@@ -78,7 +114,7 @@ const Login = ({navigation}) => {
             setLoading(true);
             const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
             setConfirm(confirmation);
-            if(confirmation){
+            if (confirmation) {
                 setLoading(false);
             }
 
@@ -91,14 +127,21 @@ const Login = ({navigation}) => {
     async function confirmCode() {
         setLoading(true);
         try {
-            await confirm.confirm(code);
-            setLoading(false);
+            let confirmation = await confirm.confirm(code);
+            // On successful verification
+            if (confirmation) {
+                auth().onAuthStateChanged(onAuthStateChanged);
+                setLoading(false);
+            }
+            return subscriber;
         } catch (error) {
             setLoading(false);
             onToggleSnackBar();
             console.log('Invalid code.');
         }
     }
+
+
 
 
     const validateInputs = (text, type) => {
@@ -116,52 +159,60 @@ const Login = ({navigation}) => {
 
     }
 
-
+    const editPhone = () => {
+        setPhone(null);
+        setConfirm(false);
+    }
 
     return (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                <View style={style.mainContainer}>
-                    <View style={style.headerContainer} >
-                        <Text style={style.headerText}>
-                            Login here
-                        </Text>
-                        <Text style={style.subHeaderText} >
-                            Welcome back you've been missed!
-                        </Text>
-                        {confirm && <Text style={style.subHeaderText} >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={style.mainContainer}>
+                <View style={style.headerContainer} >
+                    <Text style={style.headerText}>
+                        Login here
+                    </Text>
+                    <Text style={style.subHeaderText} >
+                        Welcome back you've been missed!
+                    </Text>
+                    {confirm && <View style={style.editPhone}>
+                        <Text style={[style.subHeaderText, { marginRight: 5 }]} >
                             {phone}
-                        </Text>}
-                    </View>
-                    <View style={{ marginVertical: 20 }}>
-                        {!confirm && (<AppTextInput
-                            onChangeText={(text) => validateInputs(text, 'phone')}
-                            value={phone}
-                            maxLength={10}
-                            minLength={10}
-                            type={phone}
-                            keyboardType="decimal-pad"
-                            placeholder="Mobile No" />)}
-                        {confirm && (<AppTextInput
-                            onChangeText={(text) => validateInputs(text, 'otp')}
-                            value={code}
-                            maxLength={6}
-                            minLength={6}
-                            type={code}
-                            keyboardType="decimal-pad"
-                            placeholder="OTP" />)}
-                    </View>
-                    <TouchableOpacity
-                        disabled={!valid}
-                        onPress={() => !confirm ? signInWithPhoneNumber('+91' + phone) && handleResendOTP(): confirmCode()}
-                        style={valid ? style.signInButton : style.signInButtonDisabled} >
-                        <Text style={style.signInText} >
-                            {!confirm ? 'Send OTP' : 'Verify OTP'}
                         </Text>
-                        {loading && <ActivityIndicator animating={true} color={'#fff'} />}
-                    </TouchableOpacity>
-                    {confirm &&
-                        <>
-                            {count!= 0 ? 
+                        <TouchableOpacity onPress={editPhone}>
+                            <FeatherIcon name='edit' size={16} color='#000' />
+                        </TouchableOpacity>
+                    </View>}
+                </View>
+                <View style={{ marginVertical: 20 }}>
+                    {!confirm && (<AppTextInput
+                        onChangeText={(text) => validateInputs(text, 'phone')}
+                        value={phone}
+                        maxLength={10}
+                        minLength={10}
+                        type={phone}
+                        keyboardType="decimal-pad"
+                        placeholder="Mobile No" />)}
+                    {confirm && (<AppTextInput
+                        onChangeText={(text) => validateInputs(text, 'otp')}
+                        value={code}
+                        maxLength={6}
+                        minLength={6}
+                        type={code}
+                        keyboardType="decimal-pad"
+                        placeholder="OTP" />)}
+                </View>
+                <TouchableOpacity
+                    disabled={!valid}
+                    onPress={() => !confirm ? signInWithPhoneNumber('+91' + phone) && handleResendOTP() : confirmCode()}
+                    style={valid ? style.signInButton : style.signInButtonDisabled} >
+                    <Text style={style.signInText} >
+                        {!confirm ? 'Send OTP' : 'Verify OTP'}
+                    </Text>
+                    {loading && <ActivityIndicator animating={true} color={'#fff'} />}
+                </TouchableOpacity>
+                {confirm &&
+                    <>
+                        {count != 0 ?
                             <View
                                 style={{ paddingTop: 30 }} >
                                 <Text style={style.semiboldText} >
@@ -175,27 +226,27 @@ const Login = ({navigation}) => {
                                     Resend OTP
                                 </Text>
                             </TouchableOpacity>}
-                        </>
+                    </>
 
-                    }
+                }
 
-                    <Snackbar
-                        style={{backgroundColor:'#c62828', width:'100%'}}
-                        visible={visible}
-                        duration={2000}
-                        onDismiss={onDismissSnackBar}
-                        action={{
-                            label: 'OK',
-                            labelStyle:{color:'#fff'},
-                            onPress: () => {
+                <Snackbar
+                    style={{ backgroundColor: '#c62828', width: '100%' }}
+                    visible={visible}
+                    duration={2000}
+                    onDismiss={onDismissSnackBar}
+                    action={{
+                        label: 'OK',
+                        labelStyle: { color: '#fff' },
+                        onPress: () => {
                             // Do something
-                            },
-                        }}
-                        >
-                        Invalid Code
-                    </Snackbar>
+                        },
+                    }}
+                >
+                    Invalid Code
+                </Snackbar>
 
-                    {/* <View style={{ marginVertical: 30 }} >
+                {/* <View style={{ marginVertical: 30 }} >
                         <Text style={[style.semiboldText, { color: Colors.primary }]} >
                             Or continue with
                         </Text>
@@ -224,8 +275,8 @@ const Login = ({navigation}) => {
                             </TouchableOpacity>
                         </View>
                     </View> */}
-                </View>
-            </TouchableWithoutFeedback>
+            </View>
+        </TouchableWithoutFeedback>
     )
 }
 

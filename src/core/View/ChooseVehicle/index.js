@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View ,Text,Button, Image, Pressable} from 'react-native';
+import { View ,Text,Alert, Image, Pressable} from 'react-native';
 import style from './style';
 import ANTIcon from 'react-native-vector-icons/AntDesign';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
@@ -13,7 +13,9 @@ const ChooseVehicle=({onPress, amount, paymentMode, changeMethod})=>{
         console.log(amount);
     },[])
 
-    
+    const applyCupon=()=>{
+        Alert.alert('No Coupons Available !')
+    }
 
 
 const [vehicle, setVehicle] = useState('tataAce')
@@ -76,10 +78,10 @@ return (
                         </Pressable>
                 </View>
                 <View style={style.verticalBorder}></View>
-                <View style={style.coupon}> 
+                <Pressable style={style.coupon} onPress={applyCupon}> 
                     <Text style={{color:'green', fontSize:18, fontWeight:600}}>Apply Coupon</Text>
                     <Image style={{width:25, height:25, marginLeft:10 }} source={imagePath.discount} />
-                </View>
+                </Pressable>
             </View>
             <Pressable onPress={onPress}  style={[style.confirmationButton]}> 
                 <Text style={{color:'#fff', fontSize:18, fontWeight:600}}>Book Vehicle</Text> 

@@ -14,7 +14,7 @@ const style = StyleSheet.create({
         backgroundColor: '#fff', 
         width: width*0.8, 
         maxHeight: 400, 
-        borderRadius: 20,
+        borderRadius: 10,
         height:'100%'
         
     },
@@ -23,11 +23,11 @@ const style = StyleSheet.create({
         paddingTop:15,
         paddingHorizontal:20,
         borderBottomColor:'#d6d6d6',
-        borderBottomWidth:2,
+        borderBottomWidth:1,
     },
     modalFooter:{
         borderTopColor:'#d6d6d6',
-        borderTopWidth:2,
+        // borderTopWidth:1,
         width:'100%',
         paddingTop:10,
         paddingBottom:15,

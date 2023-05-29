@@ -92,6 +92,18 @@ const style = StyleSheet.create({
         height:30,
         flexDirection:'row',
         alignItems:'center'
+    },
+    loadingContainer:{
+        position:'absolute',
+        top:'50%',
+        left:'50%',
+        backgroundColor:'#fff',
+        alignSelf:'flex-start',
+        padding:20,
+        elevation:5,
+        opacity:1,
+        zIndex:100,
+        borderRadius:8
     }
 });
 

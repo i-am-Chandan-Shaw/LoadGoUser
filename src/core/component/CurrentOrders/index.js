@@ -6,9 +6,15 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import FAIcons from 'react-native-vector-icons/FontAwesome';
 import { Avatar } from 'react-native-paper';
 import AppDivider from '../AppDivider';
+import { useNavigation } from '@react-navigation/native';
 
 const CurrentOrders = ({ data }) => {
 
+
+    const navigation = useNavigation()
+    const trackStatus=()=>{
+        navigation.navigate('LiveTracking', {details:data})
+    }
     
     const callDriver=()=>{
         Linking.openURL(`tel:${data.driverNumber}`)
@@ -40,7 +46,7 @@ const CurrentOrders = ({ data }) => {
                             </View>
                             <AppDivider alignment={'vertical'} bgColor={'#ccc'} />
                             <View style={[{ marginHorizontal: 20, }, style.alignCenter]}>
-                                <Text style={style.simpleText}>4.5 </Text>
+                                <Text style={style.simpleText}>{data.driverRating} </Text>
                                 <FAIcons name='star' color='#f4c430' size={13} />
                             </View>
                         </View>
@@ -51,7 +57,7 @@ const CurrentOrders = ({ data }) => {
                                 </View>
                                 <Text style={style.simpleSemibold}> Call Driver </Text>
                             </Pressable>
-                            <Pressable style={[style.alignCenter, { marginRight: 20 }]}>
+                            <Pressable onPress={trackStatus} style={[style.alignCenter, { marginRight: 20 }]}>
                                 <View style={{ marginTop: 2, marginRight: 5 }}>
                                     <FeatherIcon name='send' size={20} />
                                 </View>

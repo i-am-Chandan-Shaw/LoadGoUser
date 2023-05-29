@@ -11,9 +11,7 @@ const style = StyleSheet.create({
         color: '#000'
     },
     headerContainer:{
-        flexDirection:'row',
-        alignItems:'center',
-        paddingLeft:15,
+        paddingLeft:10,
         paddingBottom:15
     }
 });

@@ -106,7 +106,8 @@ const Dashboard = () => {
                         longitude: longitude,
                         latitudeDelta: LATITUDE_DELTA,
                         longitudeDelta: LONGITUDE_DELTA,
-                    })
+                    }),
+                    isLoading:false
                 })
             }
         }catch(error){
@@ -228,8 +229,7 @@ const Dashboard = () => {
                         showsUserLocation={true}
                         showsMyLocationButton={false}
                         onMapLoaded={()=>{setState({
-                            ...state,
-                            isLoading:false
+                            ...state
                         })}}
                         >
 

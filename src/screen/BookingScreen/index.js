@@ -11,10 +11,9 @@ import imagePath from '../../constants/imagePath';
 import style from './style';
 import ChooseVehicle from '../../core/View/ChooseVehicle';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
-import { Button } from 'react-native-paper';
+import { Button, RadioButton } from 'react-native-paper';
 import BookingProgress from '../../core/View/BookingProgress';
 import AppModal from '../../core/component/AppModal';
-import { RadioButton } from 'react-native-paper';
 
 
 
@@ -62,7 +61,8 @@ const BookingScreen = (props) => {
             pickupCoords: props.route.params.locationDetails.pickup,
             dropCoords: props.route.params.locationDetails.drop,
             amount: props.route.params.locationDetails.amount
-        })
+        });
+        console.log(state.dropCoords,'--->');
     }, [])
 
     const [paymentModal, setPaymentModal] = useState(false);
@@ -116,7 +116,6 @@ const BookingScreen = (props) => {
 
     return (
         <GestureHandlerRootView>
-
             <BottomSheetModalProvider>
                 <AppModal header={'Choose Payment'} height={220} onValueChange={handleChildValue} onCancel={cancelModal} onConfirm={cancelModal} visibility={paymentModal} >
                     <RadioButton.Group onValueChange={newValue => setValue(newValue)} value={value}>

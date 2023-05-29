@@ -7,6 +7,7 @@ import SplashScreen from '../screen/SplashScreen';
 import BookingScreen from '../screen/BookingScreen';
 import Login from '../screen/Login';
 import TripDetails from '../screen/TripDetails';
+import LiveTracking from '../screen/LiveTracking';
 
 
 const Stack = createNativeStackNavigator();
@@ -20,6 +21,7 @@ return (
         <Stack.Screen name="Home"  component={Home} />
         <Stack.Screen name="BookingScreen" component={BookingScreen} />
         <Stack.Screen name="ChooseLocation" component={ChooseLocation} />
+        <Stack.Screen name="LiveTracking" component={LiveTracking} />
         <Stack.Screen name="TripDetails"  options={{headerShown:true, title:'Trip Details'}}  component={TripDetails} />
       </Stack.Navigator>
     </NavigationContainer>

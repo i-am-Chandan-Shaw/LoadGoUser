@@ -3,7 +3,7 @@ import {
     TouchableOpacity,
     View,
     Keyboard,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AppTextInput from "../../core/component/AppTextInput";
@@ -23,6 +23,7 @@ const Login = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
     const [intervalId, setIntervalId] = useState(null);
+    const [isChecking, setIsChecking]= useState(false)
 
 
     const onToggleSnackBar = () => setVisible(!visible);
@@ -36,6 +37,33 @@ const Login = ({ navigation }) => {
         checkAuthentication()
         
     }, []);
+
+    const checkAuthentication = async () => {
+        setIsChecking(false);
+        try {
+            const value = await AsyncStorage.getItem('isLoggedIn');
+            if (value !== null) {
+                console.log('Retrieved data:', value);
+                if(value=='true'){
+                    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+                    return subscriber; // unsubscribe on unmount
+                    setIsChecking(false);
+                }
+                else{
+                    setIsChecking(false);
+                    return false
+                }
+            } else {
+                console.log('Data not found!');
+                setIsChecking(false);
+                return false
+            }
+        } catch (error) {
+            console.log('Error retrieving data:', error);
+            setIsChecking(false);
+            return false
+        }
+    }
 
     const handleResendOTP = () => {
         if (!intervalId) {
@@ -80,27 +108,6 @@ const Login = ({ navigation }) => {
             console.log('Data saved successfully!');
         } catch (error) {
             console.log('Error saving data:', error);
-        }
-    }
-
-    const checkAuthentication = async () => {
-        try {
-            const value = await AsyncStorage.getItem('isLoggedIn');
-            if (value !== null) {
-                console.log('Retrieved data:', value);
-                if(value=='true'){
-                    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-                    return subscriber; // unsubscribe on unmount
-                }
-                else
-                    return false
-            } else {
-                console.log('Data not found!');
-                return false
-            }
-        } catch (error) {
-            console.log('Error retrieving data:', error);
-            return false
         }
     }
 
@@ -167,6 +174,9 @@ const Login = ({ navigation }) => {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={style.mainContainer}>
+            {isChecking && <View style={style.loadingContainer}>
+                <ActivityIndicator animating={isChecking} color={'#0047ab'} />
+            </View>}
                 <View style={style.headerContainer} >
                     <Text style={style.headerText}>
                         Login here

@@ -61,9 +61,6 @@ const CurrentOrders = ({ data }) => {
                     </View>
                 </View>
             </View>
-            <Pressable style={style.rightContainer}>
-                <FeatherIcon name='chevron-right' size={30} />
-            </Pressable>
         </View>
     )
 }

@@ -6,7 +6,7 @@ import { Button } from 'react-native-paper';
 import imagePath from '../../../constants/imagePath';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 
-const BookingProgress = ({onPress}) => {
+const BookingProgress = ({onCancel}) => {
     const textArr=[
         'Please wait while we connect a driver near you.',
         'Make sure to check the goods before loading.',
@@ -61,7 +61,7 @@ const BookingProgress = ({onPress}) => {
             <View style={style.textContainer}>
                 <Text style={style.progressTextStyle} >{progressText}</Text>
             </View>
-            <Button style={style.secondaryButton} mode='contained' onPress={onPress} >
+            <Button style={style.secondaryButton} mode='contained' onPress={onCancel} >
                 <Text style={{fontSize:16, color:'#333'}}>Cancel Ride</Text>
             </Button>
             <View style={style.pickupContainer}>

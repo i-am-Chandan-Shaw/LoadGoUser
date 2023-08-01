@@ -14,7 +14,7 @@ import IonicIcon from 'react-native-vector-icons/Ionicons';
 import { Button, RadioButton } from 'react-native-paper';
 import BookingProgress from '../../core/View/BookingProgress';
 import AppModal from '../../core/component/AppModal';
-import { post } from '../../core/helper/services';
+import { del, post } from '../../core/helper/services';
 
 
 
@@ -95,7 +95,7 @@ const BookingScreen = (props) => {
         props.navigation.goBack()
     }
 
-    const cancelRide = () => {
+    const goHome = () => {
         navigation.reset({
             index: 0,
             routes: [{ name: 'Home' }],
@@ -151,6 +151,27 @@ const BookingScreen = (props) => {
 
     }
 
+    const cancelRideRequest=()=>{
+        setScreenType('chooseVehicle')
+        deleteRequest(1)
+    }
+
+    const deleteRequest = async (id) => {
+        const queryParameter = '?tripId=' + id.toString()
+        try {
+            const data = await del('deleteRequestVehicle', queryParameter);
+            if (data) {
+                try {
+                   console.log(data);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <GestureHandlerRootView>
             <BottomSheetModalProvider>
@@ -175,7 +196,7 @@ const BookingScreen = (props) => {
                         <TouchableOpacity onPress={goBack}>
                             <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={cancelRide}>
+                        <TouchableOpacity onPress={goHome}>
                             <Button mode='contained' textColor='#fff' style={{ backgroundColor: '#222' }}>Cancel Ride</Button>
                         </TouchableOpacity>
                     </View>
@@ -243,7 +264,7 @@ const BookingScreen = (props) => {
                         snapPoints={snapPoints}>
                         <View style={style.bottomSheetPopup}>
                             {screenType == 'chooseVehicle' && <ChooseVehicle receiverData={receiverData} onPress={bookVehicle} changeMethod={()=>{setPaymentModal(true)} } paymentMode={paymentMode} amount={state.amount} />}
-                            {screenType == 'bookingProgress' && <BookingProgress onPress={() => { setScreenType('chooseVehicle') }} />}
+                            {screenType == 'bookingProgress' && <BookingProgress onCancel={cancelRideRequest} />}
 
                         </View>
                     </BottomSheetModal>

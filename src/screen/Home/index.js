@@ -6,6 +6,7 @@ import Orders from "../Orders";
 import RideHistory from "../TripHistory";
 
 
+
 const AccountRoute = () => <Account/>;
 const Recents = () => <RideHistory/>;
 const Notification = () => <Orders/>;
@@ -14,6 +15,8 @@ const Notification = () => <Orders/>;
 
 const Home=()=>{
     const [index, setIndex] = React.useState(0);
+
+
     
     const [routes] = React.useState([
         { key: 'dashboard', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home'},

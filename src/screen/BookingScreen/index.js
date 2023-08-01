@@ -14,6 +14,7 @@ import IonicIcon from 'react-native-vector-icons/Ionicons';
 import { Button, RadioButton } from 'react-native-paper';
 import BookingProgress from '../../core/View/BookingProgress';
 import AppModal from '../../core/component/AppModal';
+import { post } from '../../core/helper/services';
 
 
 
@@ -34,9 +35,9 @@ const BookingScreen = (props) => {
     const mapRef = useRef();
     const snapPoints = [340, 380];
     const [value, setValue] = useState('Cash');
-    const [paymentMode,setPaymentMode]=useState('Cash')
-
+    const [paymentMode,setPaymentMode]=useState('Cash');
     const markerArr = []
+    let receiverData=props.route.params.receiverDetails;
 
     // const [locationArr, setLocationArr]= useState([
     //     {latitude: 22.5629, longitude: 88.3196},
@@ -62,7 +63,7 @@ const BookingScreen = (props) => {
             dropCoords: props.route.params.locationDetails.drop,
             amount: props.route.params.locationDetails.amount
         });
-        console.log(state.dropCoords,'--->');
+        
     }, [])
 
     const [paymentModal, setPaymentModal] = useState(false);
@@ -113,6 +114,42 @@ const BookingScreen = (props) => {
         setPaymentMode(value);
         cancelModal();
     };
+
+    const bookVehicle=()=>{
+        setScreenType('bookingProgress');
+        requestVehicle()
+    }
+
+    const requestVehicle=async () => {
+        try {
+            let payload= {
+                "userId":1,
+                "distance": 12.3,
+                "amount":state.amount.tataAce,
+                "paymentMethod":"cash",
+                "pickUpCoords":{
+                    "lat":state.pickupCoords.latitude,
+                    "lng":state.pickupCoords.longitude
+                  },
+                  "dropCoords":{
+                    "lat":state.dropCoords.latitude,
+                    "lng":state.dropCoords.longitude
+                  },
+                "pickUpLocation":"Howrah Station",
+                "dropLocation":"Esplanade",
+                "status" : 1
+              }
+            const data = await post(payload, 'postRequestVehicle');
+            if (data) {
+                console.log(data);
+
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    }
 
     return (
         <GestureHandlerRootView>
@@ -191,8 +228,9 @@ const BookingScreen = (props) => {
                                     console.log(`Duration: ${result.duration} min.`)
 
                                     mapRef.current.fitToCoordinates(result.coordinates, {
-
-                                    });
+                                        edgePadding: { top: 50, right: 20, bottom: 10, left: 30 },
+                                        animated: true,
+                                      });
                                 }}
                             />)}
                     </MapView>
@@ -204,7 +242,7 @@ const BookingScreen = (props) => {
                         backgroundStyle={{ borderRadius: 20, borderWidth: 1, borderColor: '#d6d6d6', elevation: 20 }}
                         snapPoints={snapPoints}>
                         <View style={style.bottomSheetPopup}>
-                            {screenType == 'chooseVehicle' && <ChooseVehicle onPress={()=>{setScreenType('bookingProgress')}} changeMethod={()=>{setPaymentModal(true)} } paymentMode={paymentMode} amount={state.amount} />}
+                            {screenType == 'chooseVehicle' && <ChooseVehicle receiverData={receiverData} onPress={bookVehicle} changeMethod={()=>{setPaymentModal(true)} } paymentMode={paymentMode} amount={state.amount} />}
                             {screenType == 'bookingProgress' && <BookingProgress onPress={() => { setScreenType('chooseVehicle') }} />}
 
                         </View>

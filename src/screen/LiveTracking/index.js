@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, } from 'react';
 import { View, Dimensions, Text, Pressable, Image,Linking } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
 import { BottomSheetModal, BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet';
 import MapViewDirections from 'react-native-maps-directions';
@@ -33,7 +32,6 @@ const LiveTracking = (props) => {
     useEffect(() => {
         bottomSheetRef.current?.present();
         setTripDetails(props.route.params.details)
-        console.log(tripDetails);
     }, []);
 
     const callSupport=()=>{
@@ -99,7 +97,7 @@ const LiveTracking = (props) => {
                             optimizeWaypoints={true}
                             onReady={result => {
                                 mapRef.current.fitToCoordinates(result.coordinates, {
-                                 
+                                    edgePadding: { top: 50, right: 10, bottom: 10, left: 50 },
                                 });
                                 setMapCoords(result.coordinates)  
                             }}

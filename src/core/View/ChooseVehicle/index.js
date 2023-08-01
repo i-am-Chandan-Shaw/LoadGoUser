@@ -7,11 +7,9 @@ import imagePath from '../../../constants/imagePath';
 import Vehicle from '../../component/Vehicle';
 
 
-const ChooseVehicle=({onPress, amount, paymentMode, changeMethod})=>{
+const ChooseVehicle=({onPress, amount, paymentMode, changeMethod, receiverData: receiverData})=>{
 
-    useEffect(()=>{
-        console.log(amount);
-    },[])
+   
 
     const applyCupon=()=>{
         Alert.alert('No Coupons Available !')
@@ -94,7 +92,7 @@ return (
             <View style={{marginRight:5}}></View>
             <EntypoIcon name="chevron-right" size={20} color={'#000'} />
             <View style={{marginRight:10}}></View>
-            <Text style={{color:'#000', fontSize:16, fontWeight:600}}>Chandan Shaw (8240122319)</Text>
+            <Text style={{color:'#000', fontSize:16, fontWeight:600}}> {receiverData.name} ({receiverData.phoneNo})</Text>
         </View>
     </View>
     )

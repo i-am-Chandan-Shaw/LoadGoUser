@@ -34,7 +34,7 @@ const RideHistory=()=>{
     ]
 
 return (
-    <View>
+    <View style={style.mainContainer}>
         <View style={style.headerContainer}>
             <Text style={style.subHeaderText}>Trip History</Text>
         </View>

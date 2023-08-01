@@ -14,9 +14,13 @@ const AccountList = () => {
     const logout=async()=>{
        
         try {
+            await AsyncStorage.removeItem('userData')
             await AsyncStorage.setItem('isLoggedIn', 'false');
-            console.log('Data saved successfully!');
-             navigation.navigate('Login')
+            
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Intro'}],
+            });
           } catch (error) {
             console.log('Error saving data:', error);
           }

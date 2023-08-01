@@ -5,7 +5,7 @@ import {
     Keyboard,
     TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AppTextInput from "../../core/component/AppTextInput";
 import style from "./style";
 import auth from '@react-native-firebase/auth';
@@ -13,6 +13,8 @@ import { ActivityIndicator } from 'react-native-paper';
 import { Snackbar } from 'react-native-paper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get, post } from "../../core/helper/services";
+import { AppContext } from "../../core/helper/AppContext";
 
 
 const Login = ({ navigation }) => {
@@ -23,47 +25,12 @@ const Login = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
     const [intervalId, setIntervalId] = useState(null);
-    const [isChecking, setIsChecking]= useState(false)
+    const [isChecking, setIsChecking] = useState(false);
+    const { globalData, setGlobalData } = useContext(AppContext)
 
 
     const onToggleSnackBar = () => setVisible(!visible);
     const onDismissSnackBar = () => setVisible(false);
-
-    const navigateToHome = () => {
-        navigation.replace('Home')
-    }
-
-    useEffect(() => {
-        checkAuthentication()
-        
-    }, []);
-
-    const checkAuthentication = async () => {
-        setIsChecking(false);
-        try {
-            const value = await AsyncStorage.getItem('isLoggedIn');
-            if (value !== null) {
-                console.log('Retrieved data:', value);
-                if(value=='true'){
-                    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-                    return subscriber; // unsubscribe on unmount
-                    setIsChecking(false);
-                }
-                else{
-                    setIsChecking(false);
-                    return false
-                }
-            } else {
-                console.log('Data not found!');
-                setIsChecking(false);
-                return false
-            }
-        } catch (error) {
-            console.log('Error retrieving data:', error);
-            setIsChecking(false);
-            return false
-        }
-    }
 
     const handleResendOTP = () => {
         if (!intervalId) {
@@ -89,22 +56,68 @@ const Login = ({ navigation }) => {
     // Handle login
     function onAuthStateChanged(user) {
         if (user) {
-            console.log(user);
-            setAuthenticated()
-            navigateToHome();
+
             // Some Android devices can automatically process the verification code (OTP) message, and the user would NOT need to enter the code.
             // Actually, if he/she tries to enter it, he/she will get an error message because the code was already used in the background.
             // In this function, make sure you hide the component(s) for entering the code and/or navigate away from this screen.
             // It is also recommended to display a message to the user informing him/her that he/she has successfully logged in.
         }
+        else {
+
+        }
+    }
+
+    const checkAuthentication = async () => {
+        setLoading(true)
+        let payload = { phone: phone }
+        try {
+            const data = await post(payload, 'userLogin');
+            if (data) {
+                if (data.isRegistered) {
+                    setLoading(false);
+                    setAuthenticated(data.id);
+                    setUserLocally(data.id)
+                    setGlobalData('userId',id);
+
+                } else {
+                    navigation.replace('Register', { phone: phone });
+                }
+            }
+        } catch (error) {
+            setLoading(false)
+            console.log('error login ===>', error);
+        }
+    }
+
+    const setUserLocally = async (id) => {
+        const queryParameter = '?userId=' + id.toString()
+        try {
+            const data = await get('getUser', queryParameter);
+            if (data) {
+                try {
+                    console.log('Fetched Data ==>',data);
+                    await AsyncStorage.setItem('userData', JSON.stringify(data));
+                    setGlobalData('userData',data);
+
+
+                    navigation.replace('Home');
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 
 
+
     // Set local storage
-    const setAuthenticated = async () => {
+    const setAuthenticated = async (id) => {
         try {
             await AsyncStorage.setItem('isLoggedIn', 'true');
+            await AsyncStorage.setItem('userId', id.toString());
             console.log('Data saved successfully!');
         } catch (error) {
             console.log('Error saving data:', error);
@@ -115,7 +128,6 @@ const Login = ({ navigation }) => {
     async function signInWithPhoneNumber(phoneNumber) {
         try {
             // Handling disabled state of the button
-            console.log(phoneNumber);
             setValid(false)
             setCode(null)
             setLoading(true);
@@ -138,13 +150,12 @@ const Login = ({ navigation }) => {
             // On successful verification
             if (confirmation) {
                 auth().onAuthStateChanged(onAuthStateChanged);
-                setLoading(false);
+                checkAuthentication()
             }
-            return subscriber;
         } catch (error) {
             setLoading(false);
             onToggleSnackBar();
-            console.log('Invalid code.');
+            console.log(error, 'Invalid code.');
         }
     }
 
@@ -167,16 +178,17 @@ const Login = ({ navigation }) => {
     }
 
     const editPhone = () => {
-        setPhone(null);
+        // setPhone(null);
         setConfirm(false);
+        setValid(true)
     }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={style.mainContainer}>
-            {isChecking && <View style={style.loadingContainer}>
-                <ActivityIndicator animating={isChecking} color={'#0047ab'} />
-            </View>}
+                {isChecking && <View style={style.loadingContainer}>
+                    <ActivityIndicator animating={isChecking} color={'#0047ab'} />
+                </View>}
                 <View style={style.headerContainer} >
                     <Text style={style.headerText}>
                         Login here
@@ -241,7 +253,7 @@ const Login = ({ navigation }) => {
                 }
 
                 <Snackbar
-                    style={{ backgroundColor: '#c62828', width: '100%' }}
+                    style={{ backgroundColor: '#c62828', width: '100%', marginHorizontal: 20 }}
                     visible={visible}
                     duration={2000}
                     onDismiss={onDismissSnackBar}

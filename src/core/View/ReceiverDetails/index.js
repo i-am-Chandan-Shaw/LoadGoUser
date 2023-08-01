@@ -1,23 +1,31 @@
-import React,{useState} from 'react';
+import React,{useContext, useEffect, useState} from 'react';
 import {ScrollView, View, Text } from 'react-native';
 import { TextInput, Checkbox, Button } from 'react-native-paper';
 import style from './style';
+import { AppContext } from '../../helper/AppContext';
 
-const ReceiverDetails=({onPress})=>{
+const ReceiverDetails=({passDetails})=>{
 
-    
-
+    const { globalData, setGlobalData } = useContext(AppContext) 
     const [checked, setChecked] = useState(false);
     const [receiverData, setReceiverData]= useState({
         name:'',
         phoneNo:'',
     })
+
+
+    const confirmDetails=()=>{
+        passDetails(receiverData)
+    }
+
+
     const sendToSelf=()=>{
         setChecked(!checked);
+        let user = globalData.userData[0];
         if(!checked){
             setReceiverData({
-                name:'Chandan Shaw',
-                phoneNo:'8240122319',
+                name:user?.name,
+                phoneNo:user?.phone,
                 })
         }
         else{
@@ -60,7 +68,7 @@ return (
         <Button mode="contained" 
                 disabled={!isValid}
                 style={[style.confirmationButton, {backgroundColor:isValid?'#0047ab':'#d6d6d6'}]} 
-                onPress={onPress}> Confirm & Proceed </Button>
+                onPress={confirmDetails}> Confirm & Proceed </Button>
 
 
     </ScrollView>

@@ -1,16 +1,39 @@
 import React, { useEffect } from 'react';
-import { View,Text, Image } from 'react-native';
+import { View, Image } from 'react-native';
 import style from './style';
 import { locationPermission } from '../../core/helper/helper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen=({navigation})=>{
 
     useEffect(()=>{
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
             getLiveLocation();
-        }, 1000);
-        
+            checkAuthentication()
+        }, 500);
     },[])
+
+    const checkAuthentication = async () => {
+        try {
+            const value = await AsyncStorage.getItem('isLoggedIn');
+            if (value !== null) {
+                if(value=='true'){
+                    navigation.replace('Home')
+                }
+                else{
+                    navigation.replace('Login')
+                    return false
+                }
+            } else {
+                navigation.replace('Login')
+                console.log('Data not found!');
+                return false
+            }
+        } catch (error) {
+            console.log('Error retrieving data:', error);
+            return false
+        }
+    }
 
     // Getting Location Access
 
@@ -19,11 +42,10 @@ const SplashScreen=({navigation})=>{
             const status = await locationPermission()
             if (status) {
                 console.log('Permission Granted');
-                navigation.replace('Login')
             }
         }catch(error){
             console.log(error);
-            navigation.replace('Login')
+            
         }
        
     }

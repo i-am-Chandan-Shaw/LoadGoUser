@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Dimensions, Image, Platform, TouchableOpacity,Linking } from 'react-native';
+import { View, Dimensions, Image, Platform, TouchableOpacity, Linking, Text, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
@@ -15,6 +15,8 @@ import IonicIcon from 'react-native-vector-icons/Ionicons'
 import { Button } from 'react-native-paper';
 import ReceiverDetails from '../../core/View/ReceiverDetails';
 import LocationAccess from '../LocationAccess';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get } from '../../core/helper/services';
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -25,16 +27,18 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const Dashboard = () => {
     const mapRef = useRef();
     const markerRef = useRef();
-    const bottomSheetRef = useRef(null)
-    const snapPoints = [270]
+    const bottomSheetRef = useRef(null);
+    const snapPoints = [270];
+    const [isRiding, setIsRiding] = useState(false)
 
-    const navigation = useNavigation()
+    const navigation = useNavigation();
 
     // States
     const [address, setAddress] = useState({ pickUp: '', drop: '' });
     const [currentLocation, setCurrentLocation] = useState(null);
     const [locationAccessed, setLocationAccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [tripData, setTripData] = useState(null)
     const [state, setState] = useState({
         pickupCords: {},
         dropCords: {},
@@ -53,12 +57,100 @@ const Dashboard = () => {
         bike: null
     });
 
-    useEffect(() => {
-        getLiveLocation(false);
-    }, []);
+    const [fare, setFare] = useState = ({
+        baseFare: 200,
+        perKm: 30,
+        perHour: 100
+    })
 
     useEffect(() => {
-        if(mapRef.current){
+        getLiveLocation(false);
+        getF
+        fetchTripId();
+        return () => clearTimeout(waitForTrip);
+    }, []);
+
+
+
+
+    const fetchTripId = async () => {
+        try {
+            const value = await AsyncStorage.getItem('tripId');
+            console.log(value);
+            if (value) {
+                checkFoTipStatus(value);
+            } else {
+                console.log(key, 'Data not found!');
+                return false
+            }
+        } catch (error) {
+            console.log('Error retrieving getRideStatus data:', error);
+            return false
+        }
+    }
+
+    let waitForTrip;
+
+    const checkFoTipStatus = async (id) => {
+        try {
+            let trip = await getTripStatus(id);
+            if (trip) {
+                if (trip.status == 1) {
+                    waitForTrip = setTimeout(() => {
+                        checkFoTipStatus(id);
+                        setIsRiding(false)
+                    }, 3000);
+                } else if (trip.status == 2 || trip.status == 4) {
+                    console.log('ride accepted');
+                    setIsRiding(true)
+                    const data = {
+                        ...trip,
+                        pickupCoords: {
+                            "latitude": parseFloat(trip.pickUpCoords.pickUpLat),
+                            "latitudeDelta": 0.0122,
+                            "longitude": parseFloat(trip.pickUpCoords.pickUpLng),
+                            "longitudeDelta": 0.0061627689429373245
+                        },
+                        dropCoords: {
+                            "latitude": parseFloat(trip.dropCoords.dropLat),
+                            "latitudeDelta": 0.0122,
+                            "longitude": parseFloat(trip.dropCoords.dropLng),
+                            "longitudeDelta": 0.0061627689429373245
+                        }
+                    }
+
+                    setTripData(data)
+                    waitForTrip = setTimeout(() => {
+                        checkFoTipStatus(id)
+                    }, 3000);
+
+                } else {
+                    setIsRiding(false)
+                    clearTimeout(waitForTrip);
+                }
+            }
+        } catch (error) {
+            clearTimeout(waitForTrip);
+            console.log(error);
+        }
+    }
+
+
+
+    const getTripStatus = async (id) => {
+        const queryParameter = '?tripId=' + id.toString()
+        try {
+            const data = await get('getRequestVehicle', queryParameter);
+            if (data) {
+                return data[0]
+            }
+        } catch (error) {
+            console.log('getTripStatus', error);
+        }
+    }
+
+    useEffect(() => {
+        if (mapRef.current) {
             mapRef.current.animateToRegion({
                 latitude: state.pickupCords.latitude,
                 longitude: state.pickupCords.longitude,
@@ -209,8 +301,24 @@ const Dashboard = () => {
             pickup: state.pickupCords,
             drop: state.dropCords,
             amount: amount,
+            address: address
         }
-        navigation.navigate('BookingScreen', { locationDetails: details, receiverDetails:data })
+        navigation.navigate('BookingScreen', { locationDetails: details, receiverDetails: data })
+    }
+
+    const trackTrip = () => {
+        navigation.navigate('LiveTracking', { details: tripData })
+    }
+
+    const getTripFare = async () => {
+        try {
+            const data = await get('getFare');
+            if (data) {
+                console.log(data);
+            }
+        } catch (error) {
+            console.log('getTripStatus', error);
+        }
     }
 
     return (
@@ -222,11 +330,18 @@ const Dashboard = () => {
                             <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
                         </View>
                     </TouchableOpacity>)}
-                    {Object.keys(state.dropCords).length == 0 && (<LocationInputButton
+                    {(Object.keys(state.dropCords).length == 0 && !isRiding) && (<LocationInputButton
                         onPress={() => { searchLocation('drop') }}
                         iconColor={'#800000'}
                         textColor={address.drop == '' ? '#aaaa' : '#000'}
                         text={address.drop == '' ? 'Enter Drop Location' : address.drop} />)}
+
+                    {isRiding && <View style={style.orderNavContainer}>
+                        <Text style={{ fontSize: 16, color: '#fff' }}>You've a trip currently running !</Text>
+                        <Pressable style={style.viewButton} onPress={trackTrip}>
+                            <Text style={{ color: '#000' }}>View</Text>
+                        </Pressable>
+                    </View>}
 
                     <MapView ref={mapRef} style={style.mapContainer}
                         initialRegion={currentLocation}
@@ -257,7 +372,7 @@ const Dashboard = () => {
                             <Image style={{ height: 25, width: 25 }} source={imagePath.currentLocationMarker} />
                         </Marker>)} */}
 
-                        {Object.keys(state.pickupCords).length > 0 && (
+                        {(Object.keys(state.pickupCords).length > 0 && !isRiding) && (
                             <Marker
                                 onPress={() => { searchLocation('pickup') }}
                                 coordinate={state.pickupCords}>
@@ -266,7 +381,7 @@ const Dashboard = () => {
                                     text={address.pickUp}
                                     imgSrc={imagePath.pickupMarker} />
                             </Marker>)}
-                        {Object.keys(state.dropCords).length > 0 && (
+                        {(Object.keys(state.dropCords).length > 0 && !isRiding) && (
                             <Marker coordinate={state.dropCords} onPress={() => { searchLocation('drop') }}>
                                 <CustomMarker
                                     headerText={'Drop Location:'}
@@ -274,7 +389,9 @@ const Dashboard = () => {
                                     imgSrc={imagePath.dropMarker} />
                             </Marker>
                         )}
-                        {Object.keys(state.dropCords).length > 0 && Object.keys(state.pickupCords).length > 0 &&
+                        {(Object.keys(state.dropCords).length > 0 &&
+                            Object.keys(state.pickupCords).length > 0 && !isRiding)
+                            &&
                             <MapViewDirections
                                 origin={state.pickupCords}
                                 destination={state.dropCords}
@@ -289,9 +406,9 @@ const Dashboard = () => {
                                         directionDetails: result
                                     })
 
-                                    let kmPrice = 60;
-                                    let tataAceFare = 250 + (result.distance * kmPrice);;
-                                    let boleroFare = 350 + (result.distance * kmPrice);
+                                    let kmPrice = fare.perKm;
+                                    let tataAceFare = fare.baseFare + (result.distance * kmPrice);;
+                                    let boleroFare = fare.baseFare + (result.distance * kmPrice);
                                     if (result.duration > 120) {
                                         tataAceFare = tataAceFare + ((result.duration - 120) * 2);
                                         boleroFare = boleroFare + ((result.duration - 120) * 2);
@@ -304,10 +421,10 @@ const Dashboard = () => {
                                     })
 
 
-                                    mapRef.current.fitToCoordinates(result.coordinates,  {
+                                    mapRef.current.fitToCoordinates(result.coordinates, {
                                         edgePadding: { top: 50, right: 30, bottom: 10, left: 50 },
                                         animated: true,
-                                      });
+                                    });
                                 }}
                             />}
                     </MapView>
@@ -332,7 +449,7 @@ const Dashboard = () => {
                     </BottomSheetModal>
                 </View>
             </BottomSheetModalProvider>}
-            {!locationAccessed && <LocationAccess isLoading={isLoading}  onPress={()=>{getLiveLocation(true)}} />}
+            {!locationAccessed && <LocationAccess isLoading={isLoading} onPress={() => { getLiveLocation(true) }} />}
 
         </GestureHandlerRootView>
     )

@@ -13,17 +13,18 @@ const CurrentOrders = ({ data }) => {
 
     const navigation = useNavigation()
     const trackStatus=()=>{
+        console.log(data);
         navigation.navigate('LiveTracking', {details:data})
     }
     
     const callDriver=()=>{
-        Linking.openURL(`tel:${data.driverNumber}`)
+        Linking.openURL(`tel:${data.driverPhone}`)
     }
     return (
         <View style={style.mainContainer}>
             <View style={style.leftContainer}>
                 <View style={style.headerContainer}>
-                    <Text style={style.subHeaderText}>WB 01 AB 1234 • {data.vehicleName}
+                    <Text style={style.subHeaderText}> {data?.vehicleNumber} • Tata Ace
                     </Text>
                     <View style={{ marginBottom: 2 }}>
                         <FeatherIcon name='chevron-right' size={20} />
@@ -34,7 +35,7 @@ const CurrentOrders = ({ data }) => {
                 <View style={style.topContainer}>
                     <View style={style.vehicleContainer}>
                         <View style={style.vehicle}>
-                            <Image style={style.image} source={imagePath[data.vehicleType]} />
+                            <Image style={style.image} source={imagePath.tataAce} />
                         </View>
                         <Text style={[style.subHeaderText, { lineHeight: 18 }]}>₹ {Math.floor(data.amount)} </Text>
                     </View>
@@ -42,11 +43,11 @@ const CurrentOrders = ({ data }) => {
                         <View style={[style.alignCenter, { marginBottom: 20 }]}>
                             <Avatar.Text size={24} label="AK" />
                             <View style={{ marginHorizontal: 10 }}>
-                                <Text style={style.simpleText}>Arun Kumar </Text>
+                                <Text style={style.simpleText}> {data?.driverName} </Text>
                             </View>
                             <AppDivider alignment={'vertical'} bgColor={'#ccc'} />
                             <View style={[{ marginHorizontal: 20, }, style.alignCenter]}>
-                                <Text style={style.simpleText}>{data.driverRating} </Text>
+                                <Text style={style.simpleText}>{data?.driverTotalRating} </Text>
                                 <FAIcons name='star' color='#f4c430' size={13} />
                             </View>
                         </View>

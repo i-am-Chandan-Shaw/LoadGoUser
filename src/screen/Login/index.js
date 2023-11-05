@@ -98,8 +98,6 @@ const Login = ({ navigation }) => {
                     console.log('Fetched Data ==>',data);
                     await AsyncStorage.setItem('userData', JSON.stringify(data));
                     setGlobalData('userData',data);
-
-
                     navigation.replace('Home');
                 } catch (error) {
                     console.log(error);

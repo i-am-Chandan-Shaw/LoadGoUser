@@ -7,38 +7,38 @@ import RideHistory from "../TripHistory";
 
 
 
-const AccountRoute = () => <Account/>;
-const Recents = () => <RideHistory/>;
-const Notification = () => <Orders/>;
-
-
-
 const Home=()=>{
     const [index, setIndex] = React.useState(0);
-
 
     
     const [routes] = React.useState([
         { key: 'dashboard', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home'},
-        { key: 'notifications', title: 'Orders', focusedIcon: 'bell', unfocusedIcon: 'bell-outline', badge:2 },
+        { key: 'notifications', title: 'Orders', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
         { key: 'recents', title: 'History', focusedIcon: 'history' },
         { key: 'accounts', title: 'Account', focusedIcon: 'account' },
     ]);
 
-    const renderScene = BottomNavigation.SceneMap({
-        dashboard: Dashboard,
-        accounts: AccountRoute,
-        recents: Recents,
-        notifications: Notification,
-        
-  });
+ 
     return(
         <PaperProvider>
             <BottomNavigation
                 navigationState={{ index, routes }}
                 onIndexChange={setIndex}
-                renderScene={renderScene}
-                />
+                renderScene={({ route, jumpTo }) => {
+                    switch (route.key) {
+                        case 'dashboard':
+                            return <Dashboard />;
+                        case 'notifications':
+                            return <Orders />;
+                        case 'recents':
+                            return <RideHistory />;
+                        case 'accounts':
+                            return <Account />;
+                        default:
+                            return null;
+                    }
+                }}
+            />
         </PaperProvider>
     )
 }

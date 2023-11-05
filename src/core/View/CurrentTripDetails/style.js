@@ -3,9 +3,11 @@ import { StyleSheet } from 'react-native'
 const style = StyleSheet.create({
     topContainer:{
         width:'100%',
-        flexDirection:'column',
-        justifyContent:'center',
+        flexDirection:'row',
         alignItems:'center',
+        justifyContent:'space-between',
+        paddingHorizontal:20,
+        marginBottom:10
     },
      numberPlateContainer:{
         borderColor:'#ddd',
@@ -13,7 +15,6 @@ const style = StyleSheet.create({
         alignSelf:'flex-start',
         padding:7,
         borderRadius:5,
-        marginTop:10
      },
      alignCenter:{
         flexDirection:'row',
@@ -26,7 +27,6 @@ const style = StyleSheet.create({
         justifyContent:'space-between',
         alignItems:'center',
         backgroundColor:'#f8f8f8',
-        marginTop:10
      },
      phoneContainer:{
         alignSelf:'flex-start',
@@ -34,6 +34,16 @@ const style = StyleSheet.create({
         elevation:3,
         backgroundColor:'#77dd77',
         borderRadius:8
+     },
+     otpContainer:{
+      flexDirection:'row',
+      alignItems:'center',
+      borderWidth:1,
+      borderColor:'#d6d6d6',
+      padding:5,
+      borderRadius:5,
+      paddingHorizontal:10,
+
      }
 });
 

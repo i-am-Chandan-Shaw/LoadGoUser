@@ -14,12 +14,11 @@ const style = StyleSheet.create({
     },
     secondaryButton:{
         backgroundColor:'#ccc',
-        width:200,
+        width:150,
         elevation:10,
     },
     textContainer:{
         height:60,
-        marginVertical:20,
         width:'80%',
         flexDirection:'row',
         alignItems:'center',
@@ -28,7 +27,7 @@ const style = StyleSheet.create({
     progressTextStyle:{
         textAlign:'center',
         color:'#333',
-        fontSize:18
+        fontSize:14
     },
     pickupContainer: {
         flexDirection: 'row',

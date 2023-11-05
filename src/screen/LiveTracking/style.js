@@ -28,7 +28,7 @@ const style = StyleSheet.create({
      },
      bottomContainer:{
       position:'absolute',
-      top:height - 175 - 60,
+      top:height - 175 - 85,
       right:0
      }
 });

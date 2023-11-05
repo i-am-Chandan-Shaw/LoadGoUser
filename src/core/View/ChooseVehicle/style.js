@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native'
+import FontSize from '../../../constants/FontSize';
+import Colors from '../../../constants/Colors';
 
 const style = StyleSheet.create({
    container: {
@@ -18,7 +20,7 @@ const style = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      height: 50
+      height: 40
    },
    paymentOption: {
       width: '50%',
@@ -26,14 +28,14 @@ const style = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'space-around',
       // backgroundColor:'red',
-      marginHorizontal:10
+      marginHorizontal: 10
    },
    paymentDropdown: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      alignSelf:'flex-end',
-      alignSelf:'flex-end'
+      alignSelf: 'flex-end',
+      alignSelf: 'flex-end'
    },
    coupon: {
       width: '50%',
@@ -47,7 +49,7 @@ const style = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       height: 70,
-      paddingHorizontal:10
+      paddingHorizontal: 10
    },
    pickupContainer: {
       flexDirection: 'row',
@@ -59,14 +61,38 @@ const style = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'flex-start',
       justifyContent: 'center',
-      height: 150,
+      height: 130,
       borderBottomColor: '#ccc',
       borderBottomWidth: 1,
    },
-   verticalBorder:{
-      width:2,
-      height:30,
-      backgroundColor:'#d6d6d6'
+   verticalBorder: {
+      width: 2,
+      height: 30,
+      backgroundColor: '#d6d6d6'
+   },
+   inputStyle: {
+      fontSize: FontSize.medium,
+      backgroundColor: Colors.lightPrimary,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      borderWidth: 1,
+      borderColor: '#d6d6d6',
+      height: 50,
+      marginTop: 10
+   },
+   fnt16Bold: {
+      fontSize: 16,
+      fontWeight: 600,
+      color: '#000'
+   },
+   strikeThrough: {
+      fontSize: 12,
+      textDecorationLine: 'line-through',
+      color:'#555'
+   },
+   amountContainer: {
+      justifyContent: 'center',
+      alignItems: 'center'
    }
 });
 

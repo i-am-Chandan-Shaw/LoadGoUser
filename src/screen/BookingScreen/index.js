@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, } from 'react';
-import { View, Dimensions, Text, Pressable } from 'react-native';
+import React, { useState, useRef, useEffect, useContext, } from 'react';
+import { View, Dimensions, Text, Pressable, AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
@@ -11,10 +11,12 @@ import imagePath from '../../constants/imagePath';
 import style from './style';
 import ChooseVehicle from '../../core/View/ChooseVehicle';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
-import { Button, RadioButton } from 'react-native-paper';
+import { Button, RadioButton, Snackbar } from 'react-native-paper';
 import BookingProgress from '../../core/View/BookingProgress';
 import AppModal from '../../core/component/AppModal';
-import { del, post } from '../../core/helper/services';
+import { del, get, post } from '../../core/helper/services';
+import { AppContext } from '../../core/helper/AppContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -30,14 +32,30 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const BookingScreen = (props) => {
 
+    const { globalData, setGlobalData } = useContext(AppContext);
+    let waitingTimeout;
     const navigation = useNavigation()
     const bottomSheetRef = useRef(null)
     const mapRef = useRef();
-    const snapPoints = [340, 380];
+    const [snapPoints, setSnapPoints] = useState([290, 400])
     const [value, setValue] = useState('Cash');
-    const [paymentMode,setPaymentMode]=useState('Cash');
+    const [paymentMode, setPaymentMode] = useState('Cash');
+    const [goodsType, setGoodsType] = useState('looseGoods')
+    const [bsIndex, setBsIndex] = useState(1);
+    const [discount, setDiscount] = useState(0)
     const markerArr = []
-    let receiverData=props.route.params.receiverDetails;
+    let receiverData = props.route.params.receiverDetails;
+    const [currentTripId, setCurrentTripId] = useState(null);
+    const [navigationData, setNavigationData] = useState({
+        distance: null,
+        duration: null
+    });
+
+    const [visible, setVisible] = useState(false);
+
+
+    const onDismissSnackBar = () => setVisible(false);
+
 
     // const [locationArr, setLocationArr]= useState([
     //     {latitude: 22.5629, longitude: 88.3196},
@@ -45,14 +63,12 @@ const BookingScreen = (props) => {
     //     {latitude: 22.5959, longitude: 88.3262}
     // ]);
 
-
     const [state, setState] = useState({
         pickupCoords: {},
         dropCoords: {},
-        amount: {}
+        amount: {},
+        address: {}
     });
-
-
 
     const [screenType, setScreenType] = useState('chooseVehicle')
 
@@ -61,9 +77,17 @@ const BookingScreen = (props) => {
         setState({
             pickupCoords: props.route.params.locationDetails.pickup,
             dropCoords: props.route.params.locationDetails.drop,
-            amount: props.route.params.locationDetails.amount
+            amount: props.route.params.locationDetails.amount,
+            address: props.route.params.locationDetails.address
         });
-        
+
+        const timeoutId = setTimeout(() => {
+            setBsIndex(0)
+        }, 1000);
+        return () => {
+            clearTimeout(timeoutId);
+            clearTimeout(waitingTimeout);
+        };
     }, [])
 
     const [paymentModal, setPaymentModal] = useState(false);
@@ -91,11 +115,15 @@ const BookingScreen = (props) => {
     // }
 
     const goBack = () => {
-        setScreenType('chooseVehicle')
+        if (currentTripId != null)
+            deleteRequest(currentTripId.tripId);
+        setScreenType('chooseVehicle');
         props.navigation.goBack()
     }
 
     const goHome = () => {
+        if (currentTripId != null)
+            deleteRequest(currentTripId.tripId);
         navigation.reset({
             index: 0,
             routes: [{ name: 'Home' }],
@@ -115,45 +143,130 @@ const BookingScreen = (props) => {
         cancelModal();
     };
 
-    const bookVehicle=()=>{
+    const bookVehicle = () => {
         setScreenType('bookingProgress');
-        requestVehicle()
+        setSnapPoints([300, 340])
+        setBsIndex(0)
+        requestVehicle();
     }
 
-    const requestVehicle=async () => {
+    const requestVehicle = async () => {
         try {
-            let payload= {
-                "userId":1,
-                "distance": 12.3,
-                "amount":state.amount.tataAce,
-                "paymentMethod":"cash",
-                "pickUpCoords":{
-                    "lat":state.pickupCoords.latitude,
-                    "lng":state.pickupCoords.longitude
-                  },
-                  "dropCoords":{
-                    "lat":state.dropCoords.latitude,
-                    "lng":state.dropCoords.longitude
-                  },
-                "pickUpLocation":"Howrah Station",
-                "dropLocation":"Esplanade",
-                "status" : 1
-              }
+            let payload = {
+                "userId": globalData?.userData[0].id,
+                "distance": navigationData.distance,
+                "amount": state.amount.tataAce - discount,
+                "paymentMethod": "cash",
+                "goodsType": goodsType,
+                "pickUpCoords": {
+                    "lat": state.pickupCoords.latitude,
+                    "lng": state.pickupCoords.longitude
+                },
+                "dropCoords": {
+                    "lat": state.dropCoords.latitude,
+                    "lng": state.dropCoords.longitude
+                },
+                "pickUpLocation": state.address.pickUp,
+                "dropLocation": state.address.drop,
+                "status": 1
+            }
             const data = await post(payload, 'postRequestVehicle');
             if (data) {
                 console.log(data);
+                setCurrentTripId(data);
+                storeTripId(data.tripId);
+                waitForDriver(data.tripId)
+            }
+        } catch (error) {
+            console.log(error);
+            setVisible(true);
+            setScreenType('chooseVehicle');
+            setSnapPoints([290, 400])
+            setBsIndex(0);
 
+        }
+
+    }
+
+    const waitForDriver = async (id) => {
+        try {
+            let trip = await getTripStatus(id);
+
+            if (trip) {
+                if (trip.status == 1) {
+                    waitingTimeout = setTimeout(() => {
+                        waitForDriver(id)
+                    }, 3000)
+                } else {
+                    console.log(trip);
+                    const data = {
+
+                        ...trip,
+                        pickupCoords: {
+                            "latitude": parseFloat(trip.pickUpCoords.pickUpLat),
+                            "latitudeDelta": 0.0122,
+                            "longitude": parseFloat(trip.pickUpCoords.pickUpLng),
+                            "longitudeDelta": 0.0061627689429373245
+                        },
+                        dropCoords: {
+                            "latitude": parseFloat(trip.dropCoords.dropLat),
+                            "latitudeDelta": 0.0122,
+                            "longitude": parseFloat(trip.dropCoords.dropLng),
+                            "longitudeDelta": 0.0061627689429373245
+                        },
+
+                    }
+                    navigation.navigate('LiveTracking', { details: data })
+                    clearTimeout(waitingTimeout);
+                }
             }
         } catch (error) {
             console.log(error);
         }
-
-
     }
 
-    const cancelRideRequest=()=>{
+
+    const getTripStatus = async (id) => {
+        console.log(id);
+        const queryParameter = '?tripId=' + id.toString()
+        try {
+            const data = await get('getRequestVehicle', queryParameter);
+            if (data) {
+                return data[0]
+            }
+        } catch (error) {
+            console.log('getTripStatus', error);
+        }
+    }
+
+    const storeTripId = async (id) => {
+        try {
+            await AsyncStorage.setItem('tripId', id.toString());
+            console.log('Data saved successfully!');
+        } catch (error) {
+            console.log('Error saving data:', error);
+        }
+    }
+
+    const removeTripId = async (id) => {
+        try {
+            await AsyncStorage.removeItem('tripId');
+            console.log('Data removed successfully!');
+        } catch (error) {
+            console.log('Error saving data:', error);
+        }
+    }
+
+    const handleGoodSelection = (data) => {
+        setGoodsType(data)
+    }
+
+    const cancelRideRequest = () => {
         setScreenType('chooseVehicle')
-        deleteRequest(1)
+        deleteRequest(currentTripId?.tripId);
+        setSnapPoints([290, 400])
+        setBsIndex(0);
+        removeTripId(currentTripId?.tripId)
     }
 
     const deleteRequest = async (id) => {
@@ -162,7 +275,7 @@ const BookingScreen = (props) => {
             const data = await del('deleteRequestVehicle', queryParameter);
             if (data) {
                 try {
-                   console.log(data);
+                    console.log(data);
                 } catch (error) {
                     console.log(error);
                 }
@@ -172,32 +285,40 @@ const BookingScreen = (props) => {
         }
     }
 
+    const getDiscount = (amount) => {
+        console.log(amount);
+        setDiscount(amount)
+    }
+
     return (
         <GestureHandlerRootView>
+
             <BottomSheetModalProvider>
+
                 <AppModal header={'Choose Payment'} height={220} onValueChange={handleChildValue} onCancel={cancelModal} onConfirm={cancelModal} visibility={paymentModal} >
                     <RadioButton.Group onValueChange={newValue => setValue(newValue)} value={value}>
                         <View style={style.radioItem}>
                             <RadioButton value="Cash" />
-                            <Pressable onPress={()=> setValue('Cash')}>
-                                <Text style={{fontSize:16, color:'#000'}}>Cash</Text>
+                            <Pressable onPress={() => setValue('Cash')}>
+                                <Text style={{ fontSize: 16, color: '#000' }}>Cash</Text>
                             </Pressable>
                         </View>
                         <View style={style.radioItem}>
                             <RadioButton value="Online"></RadioButton>
-                            <Pressable onPress={()=> setValue('Online')}>
-                             <Text style={{fontSize:16, color:'#000'}}>UPI/Net Banking</Text>
+                            <Pressable onPress={() => setValue('Online')}>
+                                <Text style={{ fontSize: 16, color: '#000' }}>UPI/Net Banking</Text>
                             </Pressable>
                         </View>
                     </RadioButton.Group>
                 </AppModal>
                 <View style={style.container}>
+
                     <View style={style.header}>
                         <TouchableOpacity onPress={goBack}>
                             <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={goHome}>
-                            <Button mode='contained' textColor='#fff' style={{ backgroundColor: '#222' }}>Cancel Ride</Button>
+                            <Button mode='contained' textColor='#fff' style={{ backgroundColor: '#222' }}>Cancel</Button>
                         </TouchableOpacity>
                     </View>
                     <MapView ref={mapRef} style={style.mapContainer}
@@ -248,26 +369,49 @@ const BookingScreen = (props) => {
                                     console.log(`Distance: ${result.distance} km`)
                                     console.log(`Duration: ${result.duration} min.`)
 
+                                    setNavigationData({
+                                        distance: result.distance,
+                                        duration: result.duration
+                                    })
+
                                     mapRef.current.fitToCoordinates(result.coordinates, {
                                         edgePadding: { top: 50, right: 20, bottom: 10, left: 30 },
                                         animated: true,
-                                      });
+                                    });
                                 }}
                             />)}
                     </MapView>
 
+
                     <BottomSheetModal
                         ref={bottomSheetRef}
-                        index={0}
+                        index={bsIndex}
                         enablePanDownToClose={false}
                         backgroundStyle={{ borderRadius: 20, borderWidth: 1, borderColor: '#d6d6d6', elevation: 20 }}
                         snapPoints={snapPoints}>
+                        <View style={{ position: 'relative', zIndex: 1000, top: 270 }}>
+                            <Snackbar
+                                style={{ backgroundColor: '#b92e34' }}
+                                visible={visible}
+                                onDismiss={onDismissSnackBar}
+                                action={{
+                                    label: 'OK',
+                                    onPress: () => {
+                                        onDismissSnackBar()
+                                    },
+                                }}>
+                                Something went wrong. Try Again !
+                            </Snackbar>
+                        </View>
                         <View style={style.bottomSheetPopup}>
-                            {screenType == 'chooseVehicle' && <ChooseVehicle receiverData={receiverData} onPress={bookVehicle} changeMethod={()=>{setPaymentModal(true)} } paymentMode={paymentMode} amount={state.amount} />}
+                            {screenType == 'chooseVehicle' && <ChooseVehicle discountReceived={getDiscount} receiverData={receiverData}
+                                selectGoods={handleGoodSelection} onPress={bookVehicle} changeMethod={() => { setPaymentModal(true) }}
+                                paymentMode={paymentMode} amount={state.amount} />}
                             {screenType == 'bookingProgress' && <BookingProgress onCancel={cancelRideRequest} />}
 
                         </View>
                     </BottomSheetModal>
+
                 </View>
             </BottomSheetModalProvider>
         </GestureHandlerRootView>

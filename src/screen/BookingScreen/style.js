@@ -6,10 +6,11 @@ const style = StyleSheet.create({
         height:'100%',
         width:'100%',
         position:'relative',
+        backgroundColor:'#fff'
      },
      mapContainer:{
         width: '100%', 
-        height: height - 320
+        height: height - 280
      },
      header:{
       position:'absolute',

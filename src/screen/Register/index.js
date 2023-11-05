@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, Keyboard, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import style from './style';;
 import AppTextInput from '../../core/component/AppTextInput';
-import { Picker } from '@react-native-picker/picker';
+
 import { Snackbar, Provider, ActivityIndicator } from 'react-native-paper';
 import { get, post } from '../../core/helper/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppContext } from '../../core/helper/AppContext';
 
 const Register = ({ route, navigation }) => {
-    const [selectedVehicle, setSelectedVehicle] = useState('tataAce');
+    
     const [visible, setVisible] = useState(false);
     const [snackBarText, setSnackBarText] = useState('Please fill all the data');
     const [isLoading, setIsLoading] = useState(false);
@@ -46,12 +46,13 @@ const Register = ({ route, navigation }) => {
         try {
             let payload= {
                 name:registeredData.firstName + ' ' + registeredData.lastName,
-                // email:registeredData.email,
+                email:registeredData.email,
                 phone:registeredData.phone,
                 loginPin:'1234'
             }
             const data = await post(payload, 'registerUser');
             if (data) {
+                console.log(data);
                 setIsLoading(false);
                 setUserId(data.id);
                 setUserLocally(data.id)
@@ -60,7 +61,7 @@ const Register = ({ route, navigation }) => {
 
             }
         } catch (error) {
-            console.log(error);
+            console.log('register user error =>',error);
             setIsLoading(false);
         }
 

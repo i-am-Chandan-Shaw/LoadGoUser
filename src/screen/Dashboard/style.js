@@ -29,7 +29,28 @@ const style = StyleSheet.create({
    mapContainer:{
       width: '100%', 
       height: height
+   },
+   orderNavContainer:{
+      padding:10,
+      paddingHorizontal:12,
+      margin:10,
+      position:'absolute',
+      zIndex:100,
+      width:'95%',
+      alignSelf:'center',
+      flexDirection:'row',
+      backgroundColor:'rgba(0, 128, 0,1)',
+      alignItems:'center',
+      justifyContent:'space-between',
+      borderRadius:8
+   },
+   viewButton:{
+      backgroundColor:'#d6d6d6',
+      paddingVertical:5,
+      paddingHorizontal:10,
+      borderRadius:5
    }
+
    
 });
 

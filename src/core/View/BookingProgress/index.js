@@ -22,7 +22,7 @@ const BookingProgress = ({onCancel}) => {
     let deliveryGif= <Image style={{height:150, width:150}} source={imagePath.deliveryBoy} />
 
     useEffect(() => {
-        startProgress()
+        startProgress();
     },[]);
 
     const startProgress=()=>{
@@ -62,14 +62,14 @@ const BookingProgress = ({onCancel}) => {
                 <Text style={style.progressTextStyle} >{progressText}</Text>
             </View>
             <Button style={style.secondaryButton} mode='contained' onPress={onCancel} >
-                <Text style={{fontSize:16, color:'#333'}}>Cancel Ride</Text>
+                <Text style={{fontSize:14, color:'#333'}}>Cancel</Text>
             </Button>
             <View style={style.pickupContainer}>
-                <Text style={{color:'#000', fontSize:15, fontWeight:600}}>Pickup Contact</Text>
+                <Text style={{color:'#000', fontSize:14, fontWeight:600}}>Pickup Contact</Text>
                 <View style={{marginRight:5}}></View>
                 <EntypoIcon name="chevron-right" size={20} color={'#000'} />
                 <View style={{marginRight:10}}></View>
-                <Text style={{color:'#000', fontSize:16, fontWeight:600}}>Chandan Shaw (8240122319)</Text>
+                <Text style={{color:'#000', fontSize:14, fontWeight:600}}>Chandan Shaw (8240122319)</Text>
             </View>
         </View>
 

@@ -10,9 +10,11 @@ export const post = (payload, type) => new Promise((resolve, reject) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     };
+    console.log('payload',payload);
     fetch(apiString + type + '.php', requestOptions)
         .then(response => {
             if (response.ok) {
+                console.log(response);
                 // If the response is successful 
                 response.json()
                     .then(response => {

@@ -14,39 +14,49 @@ const style = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.8)',
-      },
+    },
     vehicle: {
         borderWidth: 1,
-        width: 80,
-        height: 80,
+        width: 60,
+        height: 60,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
         borderColor: '#ddd',
         overflow: 'hidden',
+        marginBottom: 5
     },
     selectedVehicle: {
         backgroundColor: '#c2e6f4',
         borderColor: '#aaa'
     },
     image: {
-        height: 50,
-        width: 70,
+        height: 30,
+        width: 50,
     },
     vehicleText: {
         color: '#333',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 400,
         marginBottom: 10
     },
     amountText: {
         color: '#333',
-        fontSize: 18,
-        fontWeight: 400,
+        fontSize: 16,
+        fontWeight: 600,
     },
     selectedText: {
         fontWeight: 600
+    },
+    strikeThrough: {
+        fontSize: 12,
+        textDecorationLine: 'line-through'
+    },
+    amountContainer:{
+        justifyContent:'center',
+        alignItems:'center',
+        marginBottom:10
     }
 
 });

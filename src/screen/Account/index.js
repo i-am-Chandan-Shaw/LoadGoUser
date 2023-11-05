@@ -27,7 +27,7 @@ return (
                 {/* <Text style={style.emailText}>chandanshaw@gmail.com</Text> */}
             </View>
         </View>
-        <AccountList/>
+        <AccountList userData={userData} />
     </View>
     )
 }

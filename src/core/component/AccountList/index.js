@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, Share,Alert,Linking } from 'react-native';
 import style from './style';
 import FeatherIcon from 'react-native-vector-icons/Feather';
@@ -7,7 +7,13 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const AccountList = () => {
+const AccountList = ({userData}) => {
+
+  const [data,setData]=useState(null)
+  useEffect(()=>{
+    console.log(userData);
+    setData(userData)
+  },[userData])
 
     const navigation = useNavigation()
 
@@ -37,7 +43,7 @@ const AccountList = () => {
         try {
           const result = await Share.share({
             message:
-              'Deliver your goods at the best price,at the fastest time possible. Book your first service at Flat 200 Rs Off..! Visit the link to know more: www.loadgo.in',
+              'Deliver your goods at the best price,at the fastest time possible. Use my code '+ data?.inviteCode +' to get Flat 200 Rs Off..! Visit the link to know more: https://loadgo.in/home',
           });
           if (result.action === Share.sharedAction) {
             if (result.activityType) {
@@ -57,7 +63,7 @@ const AccountList = () => {
         {
             id: 0,
             title: 'Email',
-            description: 'chandan.shaw2023@gmail.com',
+            description: data?.email,
             icon: 'mail',
             iconColor: '#fff',
             backgroundColor: '#19A7CE',
@@ -69,7 +75,7 @@ const AccountList = () => {
         {
             id: 1,
             title: 'Invite',
-            description: 'Invite Code is CRYTXH',
+            description: 'Invite Code is '+ data?.inviteCode,
             icon: 'gift',
             iconColor: '#fff',
             backgroundColor: '#EBB02D',

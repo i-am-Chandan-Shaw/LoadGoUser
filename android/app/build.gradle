@@ -102,8 +102,8 @@ android {
         applicationId "com.loadgo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "1.0010"
     }
 
     splits {
@@ -141,7 +141,7 @@ android {
             signingConfig signingConfigs.release
             manifestPlaceholders = [API_KEY: "$System.env.REACT_APP_MAPS_API"]
 
-            debuggable true
+            debuggable false
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -165,6 +165,9 @@ android {
 }
 
 dependencies {
+    // Removal of the recaptcha 
+    implementation "androidx.browser:browser:1.2.0"
+
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 

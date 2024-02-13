@@ -22,13 +22,37 @@
           }
         },
         {
+          "client_id": "487269230459-g5ic6dn1muisukkh7h52r3p319m2o688.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loadgo",
+            "certificate_hash": "92cfdc70ecdbb580a795447bbab3fdb26904b48d"
+          }
+        },
+        {
+          "client_id": "487269230459-q97585c3641ae5p83udvmfe8odh4nepj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loadgo",
+            "certificate_hash": "ae576c7b9b63aa12898943f6e1d940b866088191"
+          }
+        },
+        {
+          "client_id": "487269230459-vd4vu6fkrem3hjr4es1cii5e1h6seukf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loadgo",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "487269230459-1r00h431fdveee4ertkq3ro97nmf13r6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCVSkTisTIU9YgCAcDqFzpyR3u6PJ-CVsg"
+          "current_key": "AIzaSyBHknjF2UGvTtQbi_QA-ly48aQSGJy2MdU"
         }
       ],
       "services": {

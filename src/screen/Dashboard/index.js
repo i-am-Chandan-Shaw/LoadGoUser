@@ -57,7 +57,7 @@ const Dashboard = () => {
         bike: null
     });
 
-    const [fare, setFare] = useState = ({
+    const [fare, setFare] = useState({
         baseFare: 200,
         perKm: 30,
         perHour: 100
@@ -65,7 +65,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         getLiveLocation(false);
-        getF
+        getTripFare();
         fetchTripId();
         return () => clearTimeout(waitForTrip);
     }, []);
@@ -314,7 +314,11 @@ const Dashboard = () => {
         try {
             const data = await get('getFare');
             if (data) {
-                console.log(data);
+                setFare({
+                    baseFare: data[0].baseFare,
+                    perKm: data[0].perKm,
+                    perHour: data[0].afterAnHour
+                })
             }
         } catch (error) {
             console.log('getTripStatus', error);
@@ -330,11 +334,21 @@ const Dashboard = () => {
                             <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
                         </View>
                     </TouchableOpacity>)}
+                    {(Object.keys(state.pickupCords).length != 0 && !isRiding && Object.keys(state.dropCords).length == 0) && (<LocationInputButton
+
+                        onPress={() => { searchLocation('pickup') }}
+                        iconColor={'#097969'}
+                        textColor={address.pickUp == '' ? '#aaaa' : '#000'}
+                        text={address.pickUp == '' ? 'Enter Pickup Location' : address.pickUp} />)}
+
                     {(Object.keys(state.dropCords).length == 0 && !isRiding) && (<LocationInputButton
+                        styles={{ position: 'absolute', top: 55, width: '100%' }}
                         onPress={() => { searchLocation('drop') }}
                         iconColor={'#800000'}
                         textColor={address.drop == '' ? '#aaaa' : '#000'}
                         text={address.drop == '' ? 'Enter Drop Location' : address.drop} />)}
+
+
 
                     {isRiding && <View style={style.orderNavContainer}>
                         <Text style={{ fontSize: 16, color: '#fff' }}>You've a trip currently running !</Text>

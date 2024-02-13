@@ -77,7 +77,7 @@ const Login = ({ navigation }) => {
                     setLoading(false);
                     setAuthenticated(data.id);
                     setUserLocally(data.id)
-                    setGlobalData('userId',id);
+                    setGlobalData('userId', id);
 
                 } else {
                     navigation.replace('Register', { phone: phone });
@@ -95,9 +95,9 @@ const Login = ({ navigation }) => {
             const data = await get('getUser', queryParameter);
             if (data) {
                 try {
-                    console.log('Fetched Data ==>',data);
+                    console.log('Fetched Data ==>', data);
                     await AsyncStorage.setItem('userData', JSON.stringify(data));
-                    setGlobalData('userData',data);
+                    setGlobalData('userData', data);
                     navigation.replace('Home');
                 } catch (error) {
                     console.log(error);
@@ -108,6 +108,23 @@ const Login = ({ navigation }) => {
         }
     }
 
+    // Creating OTP
+
+    const [otp, setOtp] = useState(845398)
+
+    function generateOTP(phoneNumber) {
+        // Generate a random 6-digit number
+        const randomOtp = Math.floor(100000 + Math.random() * 900000);
+
+        setOtp((prev) => {
+            console.log(randomOtp);
+            signInWithPhoneNumber(phoneNumber,randomOtp)
+            return randomOtp;
+        }
+        );
+
+
+    }
 
 
 
@@ -123,17 +140,20 @@ const Login = ({ navigation }) => {
     }
 
     // Handle the button press
-    async function signInWithPhoneNumber(phoneNumber) {
+    async function signInWithPhoneNumber(phoneNumber,newOtp) {
         try {
             // Handling disabled state of the button
             setValid(false)
             setCode(null)
             setLoading(true);
-            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-            setConfirm(confirmation);
-            if (confirmation) {
+            // const response = await fetch('https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' + newOtp + '&route=otp&numbers=' + phoneNumber); // Replace with your API endpoint
+            // const result = await response.json();
+
+            // if (response) {
                 setLoading(false);
-            }
+                setConfirm(true);
+            // }
+
 
         } catch (error) {
             setLoading(false);
@@ -143,17 +163,13 @@ const Login = ({ navigation }) => {
 
     async function confirmCode() {
         setLoading(true);
-        try {
-            let confirmation = await confirm.confirm(code);
-            // On successful verification
-            if (confirmation) {
-                auth().onAuthStateChanged(onAuthStateChanged);
-                checkAuthentication()
-            }
-        } catch (error) {
+        if (code == otp) {
+            checkAuthentication()
+        }
+        else {
+            console.log('Invalid Code');
             setLoading(false);
             onToggleSnackBar();
-            console.log(error, 'Invalid code.');
         }
     }
 
@@ -223,7 +239,7 @@ const Login = ({ navigation }) => {
                 </View>
                 <TouchableOpacity
                     disabled={!valid}
-                    onPress={() => !confirm ? signInWithPhoneNumber('+91' + phone) && handleResendOTP() : confirmCode()}
+                    onPress={() => !confirm ? generateOTP(phone) && handleResendOTP() : confirmCode()}
                     style={valid ? style.signInButton : style.signInButtonDisabled} >
                     <Text style={style.signInText} >
                         {!confirm ? 'Send OTP' : 'Verify OTP'}
@@ -240,7 +256,7 @@ const Login = ({ navigation }) => {
                                 </Text>
                             </View> :
                             <TouchableOpacity
-                                onPress={() => { signInWithPhoneNumber('+91' + phone); handleResendOTP() }}
+                                onPress={() => { generateOTP(phone); handleResendOTP() }}
                                 style={{ paddingTop: 30 }} >
                                 <Text style={style.activeText} >
                                     Resend OTP
@@ -301,3 +317,8 @@ const Login = ({ navigation }) => {
 }
 
 export default Login
+
+
+
+
+

@@ -37,6 +37,11 @@ const AccountList = ({userData}) => {
         
     }
 
+    const openTermsAndCondition = () => {
+      navigation.navigate('TermsAndConditions')
+    }
+  
+
     const noop=()=>{}
 
     const onShare = async () => {
@@ -108,7 +113,8 @@ const AccountList = ({userData}) => {
             buttonText: '',
             buttonType: '',
             buttonColor: '',
-            nextPage:true
+            nextPage:true,
+            onPress:openTermsAndCondition
         },
         {
         id: 4,

@@ -12,6 +12,7 @@ import Register from '../screen/Register';
 import { AppContext } from '../core/helper/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RatingScreen from '../screen/RatingScreen';
+import TermsAndConditions from '../screen/TermsAndConditions';
 
 
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,7 @@ const Navigation = () => {
         <Stack.Screen name="BookingScreen" component={BookingScreen} />
         <Stack.Screen name="ChooseLocation" component={ChooseLocation} />
         <Stack.Screen name="LiveTracking" component={LiveTracking} />
+        <Stack.Screen name="TermsAndConditions" options={{ headerShown: true, title: 'Terms & Conditions' }} component={TermsAndConditions} />
         <Stack.Screen name="Rating" component={RatingScreen} options={{
           headerShown: true, headerLeft: () => {
             return null;

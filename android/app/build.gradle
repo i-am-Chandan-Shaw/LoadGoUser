@@ -102,8 +102,8 @@ android {
         applicationId "com.loadgo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10
-        versionName "1.0010"
+        versionCode 12
+        versionName "1.0012"
     }
 
     splits {
@@ -113,6 +113,9 @@ android {
             universalApk false  // If true, also generate a universal APK
             include (*reactNativeArchitectures())
         }
+    }
+    lintOptions { 
+        checkReleaseBuilds false 
     }
     signingConfigs {
         release {

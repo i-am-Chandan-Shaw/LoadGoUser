@@ -8,8 +8,8 @@ const style = StyleSheet.create({
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: '#eaf4fe',
-      height: 140,
-      elevation: 10
+      height: 80,
+      elevation: 5
    },
    headerTextContainer: {
       width: '80%'
@@ -18,13 +18,13 @@ const style = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
    },
-   editContainer:{
-      marginLeft:10,
+   editContainer: {
+      marginLeft: 10,
       flexDirection: 'row',
       alignItems: 'center',
    },
    nameText: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: 700,
       color: '#333',
       marginBottom: 5
@@ -34,13 +34,13 @@ const style = StyleSheet.create({
       fontWeight: '500'
    },
    phoneText: {
-      fontSize: 14,
+      fontSize: 12,
       fontWeight: '600',
       color: '#333',
    },
    listIcon: {
-      height: 50,
-      width: 50,
+      height: 30,
+      width: 30,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
@@ -55,7 +55,7 @@ const style = StyleSheet.create({
       marginBottom: 20
    },
    listTitle: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: 500,
       color: '#333'
    },

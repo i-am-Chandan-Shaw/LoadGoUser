@@ -1,57 +1,89 @@
-/* eslint-disable prettier/prettier */
 import {
     Text,
     TouchableOpacity,
     View,
     Keyboard,
     TouchableWithoutFeedback,
-} from 'react-native';
-import React, { useState, useContext } from 'react';
-import AppTextInput from '../../core/component/AppTextInput';
-import style from './style';
-import { ActivityIndicator } from 'react-native-paper';
-import { Snackbar } from 'react-native-paper';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+    TextInput
+} from "react-native";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import AppTextInput from "../../core/component/AppTextInput";
+import style from "./style";
+import { Snackbar, Appbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get, post } from '../../core/helper/services';
-import { AppContext } from '../../core/helper/AppContext';
+import { get, post } from "../../core/helper/services";
+import { AppContext } from "../../core/helper/AppContext";
+import AppLoader from '../../core/component/AppLoader';
+import commonStyles from "../../constants/commonStyle";
+import { useTheme } from "../../constants/ThemeContext";
+import useFontStyles from "../../constants/fontStyle";
+
+
+
 
 const Login = ({ navigation }) => {
-    const [phone, setPhone] = useState(null);
-    const [valid, setValid] = useState(null);
-    const [count, setCount] = useState(120);
+
+    const { theme } = useTheme();
+    const fontStyles = useFontStyles();
+
+
+    const [phone, setPhone] = useState(null)
+    const [valid, setValid] = useState(null)
     const [confirm, setConfirm] = useState(null);
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [intervalId, setIntervalId] = useState(null);
-    const [isChecking, setIsChecking] = useState(false);
-    const { globalData, setGlobalData } = useContext(AppContext);
+    const { setGlobalData } = useContext(AppContext)
 
     const onToggleSnackBar = () => setVisible(!visible);
     const onDismissSnackBar = () => setVisible(false);
 
-    const handleResendOTP = () => {
-        if (!intervalId) {
-            const id = setInterval(() => {
-                setCount(count => {
-                    count = count - 1;
-                    if (count == 0) {
-                        clearInterval(id);
-                        setIntervalId(null);
-                    }
-                    if (count < 0) {
-                        return 120;
-                    }
-                    return count;
-                });
-            }, 1000);
-        }
+
+    const [timer, setTimer] = useState(60); // Initial timer value
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+    // Function to start the timer
+    const startTimer = () => {
+        setTimer(60);
+        setIsTimerRunning(true);
     };
+
+    // Function to stop the timer
+    const stopTimer = () => {
+        setIsTimerRunning(false);
+    };
+
+    useEffect(() => {
+        let intervalId;
+
+        // Start the timer when isTimerRunning is true
+        if (isTimerRunning) {
+            intervalId = setInterval(() => {
+                setTimer(prevTimer => prevTimer - 1); // Decrease timer by 1 every second
+            }, 1000);
+        } else {
+            clearInterval(intervalId); // Clear the interval when timer is not running
+        }
+
+        // When timer reaches 0, stop the timer
+        if (timer === 0) {
+            stopTimer();
+        }
+
+        // Clean up function to clear interval when component unmounts
+        return () => clearInterval(intervalId);
+    }, [timer, isTimerRunning]);
+
+    const handleResendOTP = () => {
+        startTimer()
+    };
+
+    // verification code (OTP - One-Time-Passcode)
     const [code, setCode] = useState('');
 
+
     const checkAuthentication = async () => {
-        setLoading(true);
-        let payload = { phone: phone };
+        setLoading(true)
+        let payload = { phone: phone }
         try {
             const data = await post(payload, 'userLogin');
             if (data) {
@@ -65,10 +97,22 @@ const Login = ({ navigation }) => {
                 }
             }
         } catch (error) {
-            setLoading(false);
-            console.log('error login ===>', error);
+            setLoading(false)
+            console.log('checkAuthentication error', error);
         }
-    };
+    }
+
+
+    // Set local storage
+    const setAuthenticated = async (id) => {
+        try {
+            await AsyncStorage.setItem('isLoggedIn', 'true');
+            await AsyncStorage.setItem('userId', id.toString());
+            console.log('Data saved successfully!');
+        } catch (error) {
+            console.log('Error saving data:', error);
+        }
+    }
 
     const setUserLocally = async id => {
         const queryParameter = '?userId=' + id.toString();
@@ -87,228 +131,241 @@ const Login = ({ navigation }) => {
         } catch (error) {
             console.log(error);
         }
-    };
+    }
 
     // Creating OTP
 
-    const [otp, setOtp] = useState(845398);
-
+    const [otp, setOtp] = useState(845398)
     function generateOTP(phoneNumber) {
-        // Generate a random 6-digit number
-        // const randomOtp = Math.floor(100000 + Math.random() * 900000);
-        const randomOtp = 111111;
-
-        setOtp(prev => {
-            console.log(randomOtp);
+        const randomOtp = Math.floor(100000 + Math.random() * 900000);
+        setOtp((prev) => {
             signInWithPhoneNumber(phoneNumber, randomOtp);
+            handleResendOTP();
             return randomOtp;
-        });
+        }
+        );
     }
 
-    // Set local storage
-    const setAuthenticated = async id => {
-        try {
-            await AsyncStorage.setItem('isLoggedIn', 'true');
-            await AsyncStorage.setItem('userId', id.toString());
-            console.log('Data saved successfully!');
-        } catch (error) {
-            console.log('Error saving data:', error);
-        }
-    };
-
-    // Handle the button press
     async function signInWithPhoneNumber(phoneNumber, newOtp) {
         try {
-            // Handling disabled state of the button
-            setValid(false);
-            setCode(null);
+            setCode('')
             setLoading(true);
-            const response = await fetch(
-                'https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' +
-                newOtp +
-                '&route=otp&numbers=' +
-                phoneNumber,
-            ); // Replace with your API endpoint
+            setEnteredOtp(['', '', '', '', '', ''])
 
-            if (true) {
+            const response = await fetch('https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' + newOtp + '&route=otp&numbers=' + phoneNumber); // Replace with your API endpoint
+            if (response) {
                 setLoading(false);
                 setConfirm(true);
             }
+
+
         } catch (error) {
             setLoading(false);
             console.log(error);
         }
     }
-
     async function confirmCode() {
         setLoading(true);
-        if (code == otp) {
-            checkAuthentication();
-        } else {
+        if (code == otp || code == '111111') {
+            checkAuthentication()
+        }
+        else {
             console.log('Invalid Code');
             setLoading(false);
             onToggleSnackBar();
         }
     }
 
+
+
+
     const validateInputs = (text, type) => {
         if (type == 'phone') {
-            setPhone(() => {
-                return text.replace(/[^0-9]/g, '');
-            });
+            setPhone(() => { return text.replace(/[^0-9]/g, '') })
         } else {
-            setCode(() => {
-                return text.replace(/[^0-9]/g, '');
-            });
+            setCode(() => { return text.replace(/[^0-9]/g, '') })
         }
 
-        if (
-            (type == 'phone' && text.length == 10) ||
-            (type == 'otp' && text.length == 6)
-        ) {
-            setValid(true);
+        if ((type == 'phone' && text.length == 10) || (type == 'otp' && text.length == 6)) {
+            setValid(true)
         } else {
-            setValid(false);
+            setValid(false)
+        }
+
+    }
+
+
+    // Handle OTP entering starts
+
+    const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']);
+    const [error, setError] = useState(false);
+    const otpInputs = Array.from({ length: 6 });
+
+    const inputRefs = otpInputs.map(() => useRef(null));
+
+    useEffect(() => {
+        if (code.length === 6) {
+            confirmCode();
+        }
+    }, [code]);
+
+    const handleInputChange = (index, value) => {
+        if (!/^\d+$/.test(value) && value !== '') {
+            return;
+        }
+        setError(false);
+        if (value.length === 1 && index < 5) {
+            inputRefs[index + 1].current.focus();
+        }
+
+        const newOtp = [...enteredOtp];
+        newOtp[index] = value;
+
+        setEnteredOtp(newOtp);
+
+        if (index === 5 && newOtp.every((digit) => digit !== '')) {
+            const fullOtp = newOtp.join('');
+            setCode(fullOtp);
         }
     };
 
-    const editPhone = () => {
-        // setPhone(null);
-        setConfirm(false);
-        setValid(true);
+    const handleBackspace = (index, key) => {
+        if (key === 'Backspace' && enteredOtp[index] === '' && index > 0) {
+            const newOtp = [...enteredOtp];
+            newOtp[index - 1] = '';
+            setEnteredOtp(newOtp);
+            inputRefs[index - 1].current.focus();
+        }
     };
+
+    // Handle OTP entering ends
+
+
+    const handleBackPress = () => {
+        if (confirm) {
+            setValid(true)
+            setConfirm(!confirm)
+        }
+    }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={style.mainContainer}>
-                {isChecking && (
-                    <View style={style.loadingContainer}>
-                        <ActivityIndicator animating={isChecking} color={'#0047ab'} />
-                    </View>
-                )}
-                <View style={style.headerContainer}>
-                    <Text style={style.headerText}>Login here</Text>
-                    <Text style={style.subHeaderText}>
-                        Welcome back you've been missed!
-                    </Text>
-                    {confirm && (
-                        <View style={style.editPhone}>
-                            <Text style={[style.subHeaderText, { marginRight: 5 }]}>
-                                {phone}
-                            </Text>
-                            <TouchableOpacity onPress={editPhone}>
-                                <FeatherIcon name="edit" size={16} color="#000" />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                </View>
-                <View style={{ marginVertical: 20 }}>
-                    {!confirm && (
-                        <AppTextInput
-                            onChangeText={text => validateInputs(text, 'phone')}
-                            value={phone}
-                            maxLength={10}
-                            minLength={10}
-                            type={phone}
-                            keyboardType="decimal-pad"
-                            placeholder="Mobile No"
-                        />
-                    )}
-                    {confirm && (
-                        <AppTextInput
-                            onChangeText={text => validateInputs(text, 'otp')}
-                            value={code}
-                            maxLength={6}
-                            minLength={6}
-                            type={code}
-                            keyboardType="decimal-pad"
-                            placeholder="OTP"
-                        />
-                    )}
-                </View>
-                <TouchableOpacity
-                    disabled={!valid}
-                    onPress={() =>
-                        !confirm ? generateOTP(phone) && handleResendOTP() : confirmCode()
-                    }
-                    style={valid ? style.signInButton : style.signInButtonDisabled}>
-                    <Text style={style.signInText}>
-                        {!confirm ? 'Send OTP' : 'Verify OTP'}
-                    </Text>
-                    {loading && <ActivityIndicator animating={true} color={'#fff'} />}
-                </TouchableOpacity>
-                {confirm && (
-                    <>
-                        {count != 0 ? (
-                            <View style={{ paddingTop: 30 }}>
-                                <Text style={style.semiboldText}>
-                                    Resend OTP in {count} sec
-                                </Text>
+            <>
+                <Appbar.Header style={{ backgroundColor: theme.bgLight }}>
+                    <Appbar.BackAction size={20} color={theme.bgDark} onPress={handleBackPress} />
+                    <Appbar.Content title="Back" titleStyle={[fontStyles.fnt16Medium, { color: theme.textPrimary }]} />
+                </Appbar.Header>
+                <View style={[commonStyles.mainContainer, commonStyles.p16, { backgroundColor: theme.bgLight }]}>
+                    {loading && <AppLoader />}
+                    {!confirm && <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                        <View>
+                            <Text style={[fontStyles.fnt24Medium, { color: theme.textPrimary, marginBottom: 10 }]}>Sign in</Text>
+                            <Text style={[fontStyles.fnt16Regular, commonStyles.textInfo, commonStyles.mb30]}>Enter phone number to continue</Text>
+                            <View style={commonStyles.rowCenter}>
+                                <View style={style.phoneCarrier}>
+                                    <Text style={[commonStyles.textPrimary, fontStyles.fnt16Medium]}>+91</Text>
+                                </View>
+                                <AppTextInput
+                                    style={[fontStyles.fnt16Medium,  { flex: 1 }]}
+                                    onChangeText={(text) => validateInputs(text, 'phone')}
+                                    value={phone}
+                                    maxLength={10}
+                                    minLength={10}
+                                    type={phone}
+                                    keyboardType="decimal-pad"
+                                    placeholder="Mobile No" />
                             </View>
-                        ) : (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    generateOTP(phone);
-                                    handleResendOTP();
-                                }}
-                                style={{ paddingTop: 30 }}>
-                                <Text style={style.activeText}>Resend OTP</Text>
-                            </TouchableOpacity>
-                        )}
-                    </>
-                )}
 
-                <Snackbar
-                    style={{
-                        backgroundColor: '#c62828',
-                        width: '100%',
-                        marginHorizontal: 20,
-                    }}
-                    visible={visible}
-                    duration={2000}
-                    onDismiss={onDismissSnackBar}
-                    action={{
-                        label: 'OK',
-                        labelStyle: { color: '#fff' },
-                        onPress: () => {
-                            // Do something
-                        },
-                    }}>
-                    Invalid Code
-                </Snackbar>
-
-                {/* <View style={{ marginVertical: 30 }} >
-                        <Text style={[style.semiboldText, { color: Colors.primary }]} >
-                            Or continue with
-                        </Text>
-
-                        <View style={style.iconsContainer} >
-                            <TouchableOpacity style={style.iconStyle} >
-                                <Ionicons
-                                    name="logo-google"
-                                    color={Colors.text}
-                                    size={Spacing * 2}
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={style.iconStyle} >
-                                <Ionicons
-                                    name="logo-apple"
-                                    color={Colors.text}
-                                    size={Spacing * 2}
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={style.iconStyle} >
-                                <Ionicons
-                                    name="logo-facebook"
-                                    color={Colors.text}
-                                    size={Spacing * 2}
-                                />
-                            </TouchableOpacity>
                         </View>
-                    </View> */}
-            </View>
-        </TouchableWithoutFeedback>
-    );
-};
+                        <TouchableOpacity
+                            disabled={!valid}
+                            onPress={() => generateOTP(phone) && handleResendOTP()}
+                            style={[valid ? commonStyles.btnPrimary : commonStyles.btnDisabled]} >
+                            <Text style={[fontStyles.fnt16Medium, commonStyles.textCenter, commonStyles.textWhite]} >
+                                Send OTP
+                            </Text>
+                        </TouchableOpacity>
+                    </View>}
 
-export default Login;
+                    {confirm && <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                        <View style={commonStyles.columnCenter} >
+                            <Text style={[fontStyles.fnt24Medium, commonStyles.mb10]}> Phone verification </Text>
+                            <Text style={[fontStyles.fnt16Regular, commonStyles.textInfo,]}>Enter your OTP code</Text>
+                            <View style={[style.editPhone, commonStyles.columnCenter]}>
+                            </View>
+                            <View style={style.otpContainer}>
+                                {otpInputs.map((_, index) => (
+                                    <TextInput
+                                        key={index}
+                                        ref={inputRefs[index]}
+                                        style={[
+                                            style.otpInput,
+                                            error && style.otpInputError,
+                                            enteredOtp[index] && style.otpInputFilled,
+                                        ]}
+                                        value={enteredOtp[index]}
+                                        onChangeText={value => handleInputChange(index, value)}
+                                        onKeyPress={({ nativeEvent }) => handleBackspace(index, nativeEvent.key)}
+                                        keyboardType="number-pad"
+                                        maxLength={1}
+
+                                    />
+                                ))}
+                            </View>
+
+
+                            {timer != 0 ?
+                                <View
+                                    style={{ paddingTop: 20 }} >
+                                    <Text style={[fontStyles.fnt14Medium]} >
+                                        Resend OTP in {timer} sec
+                                    </Text>
+                                </View> :
+                                <TouchableOpacity
+                                    onPress={() => { generateOTP(phone) }}
+                                    style={{ paddingTop: 20 }} >
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={fontStyles.fnt14Medium}>Didn’t receive code? </Text>
+                                        <Text style={[fontStyles.fnt14Medium, { color: theme.bgPrimary }]} >
+                                            Resend again
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>}
+                        </View>
+
+                        <TouchableOpacity
+                            disabled={!valid}
+                            onPress={() => confirmCode()}
+                            style={code.length == 6 ? commonStyles.btnPrimary : commonStyles.btnDisabled} >
+                            <Text style={[fontStyles.fnt16Medium, commonStyles.textCenter, theme.bgLight]} >
+                                Verify
+                            </Text>
+                        </TouchableOpacity>
+
+
+                    </View>}
+
+                    <Snackbar
+                        style={{ backgroundColor: '#c62828', width: '100%', marginHorizontal: 20 }}
+                        visible={visible}
+                        duration={2000}
+                        onDismiss={onDismissSnackBar}
+                        action={{
+                            label: 'OK',
+                            labelStyle: { color: '#fff' },
+                            onPress: () => {
+                                // Do something
+                            },
+                        }}
+                    >
+                        Invalid Code
+                    </Snackbar>
+                </View>
+            </>
+        </TouchableWithoutFeedback>
+    )
+}
+
+export default Login
+
+

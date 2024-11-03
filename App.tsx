@@ -7,16 +7,17 @@
 
 import React from 'react';
 import Navigation from './src/Navigation';
-import { AppProvider } from './src/core/helper/AppContext';
-
+import {AppProvider} from './src/core/helper/AppContext';
+import {ThemeProvider} from './src/constants/ThemeContext';
 
 function App() {
-    return (
-        <AppProvider>
-            <Navigation />
-        </AppProvider>);
+  return (
+    <ThemeProvider>
+      <AppProvider>
+        <Navigation />
+      </AppProvider>
+    </ThemeProvider>
+  );
 }
-
-
 
 export default App;

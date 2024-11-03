@@ -1,69 +1,56 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Share, Alert, Linking } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, Pressable, Share, Alert, Linking} from 'react-native';
 import style from './style';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { Button } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import MatIcon from 'react-native-vector-icons/MaterialIcons';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTheme} from '../../../constants/ThemeContext';
+import useFontStyles from '../../../constants/fontStyle';
 
+const AccountList = ({userData}) => {
+  const {theme} = useTheme();
+  const fontStyles = useFontStyles();
+  const [data, setData] = useState(null);
+  const navigation = useNavigation();
 
-const AccountList = ({ userData }) => {
-
-  const [data, setData] = useState(null)
   useEffect(() => {
-    setData(userData)
-  }, [userData])
-
-  const navigation = useNavigation()
+    setData(userData);
+  }, [userData]);
 
   const logout = async () => {
-
     try {
-      await AsyncStorage.removeItem('userData')
       await AsyncStorage.setItem('isLoggedIn', 'false');
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Intro' }],
-      });
+      navigation.replace('Login');
     } catch (error) {
-      console.log('Error saving data:', error);
+      console.error('Error logging out:', error);
     }
-  }
+  };
 
   const callSupport = () => {
-    Linking.openURL(`tel:${3361218798}`)
-
-  }
-
-  const openTermsAndCondition = () => {
-    navigation.navigate('TermsAndConditions')
-  }
-
-
-  const noop = () => { }
+    Linking.openURL(`tel:${3361218798}`);
+  };
 
   const onShare = async () => {
     try {
       const result = await Share.share({
         message:
-          'Deliver your goods at the best price,at the fastest time possible. Use my code ' + data?.inviteCode + ' to get Flat 200 Rs Off..! Visit the link to know more: https://loadgo.in/home',
+          'Deliver your goods at the best price, at the fastest time possible. Book your first service at Flat 200 Rs Off..! Visit the link to know more: www.loadgo.in',
       });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
+      if (result.action === Share.dismissedAction) {
+        // Handle dismissal case
       }
     } catch (error) {
-      Alert.alert(error.message);
+      Alert.alert('Error', error.message);
     }
   };
 
-  const listItemDetails = [
+  const navigateToScreen = screen => {
+    navigation.navigate(screen);
+  };
+
+  const listItems = [
     {
       id: 0,
       title: 'Email',
@@ -74,89 +61,103 @@ const AccountList = ({ userData }) => {
       buttonText: '',
       buttonType: '',
       buttonColor: '',
-      nextPage: false
+      nextPage: false,
     },
     {
       id: 1,
       title: 'Invite',
-      description: 'Invite Code is ' + data?.inviteCode,
+      description: `Invite Code is ${data?.inviteCode}`,
       icon: 'gift',
-      iconColor: '#fff',
       backgroundColor: '#EBB02D',
       buttonText: 'Invite',
       buttonType: 'outlined',
       buttonColor: '',
       nextPage: false,
-      onPress: onShare
+      onPress: onShare,
     },
     {
       id: 2,
       title: 'Support',
       description: 'For queries and help',
       icon: 'message-circle',
-      iconColor: '#fff',
       backgroundColor: '#57C5B6',
       buttonText: 'Call',
       buttonType: 'outlined',
       buttonColor: '#0047ab',
       nextPage: false,
-      onPress: callSupport
+      onPress: callSupport,
     },
     {
       id: 3,
       title: 'Terms & Conditions',
-      description: '',
       icon: 'alert-circle',
-      iconColor: '#fff',
       backgroundColor: '#62CDFF',
       buttonText: '',
       buttonType: '',
       buttonColor: '',
       nextPage: true,
-      onPress: openTermsAndCondition
+      onPress: () => navigateToScreen('TermsAndConditions'),
     },
     {
       id: 4,
       title: 'Logout',
-      description: '',
       icon: 'power',
-      iconColor: '#fff',
       backgroundColor: '#FF6969',
       buttonText: '',
       buttonType: '',
       buttonColor: '',
       nextPage: false,
-      onPress: logout
+      onPress: logout,
     },
-  ]
-  let listArr = listItemDetails.map(item => (
+  ];
+
+  const renderIcon = item => {
+    const IconComponent = item.iconComponent || FeatherIcon;
+    return <IconComponent name={item.icon} color="#fff" size={18} />;
+  };
+
+  const renderListItems = listItems.map(item => (
     <View key={item.id}>
-      <Pressable onPress={item.onPress ? item.onPress : noop}>
+      <Pressable
+        onPress={item.onPress}
+        android_ripple={{color: '#eee', borderless: false}}>
         <View style={style.list}>
           <View style={style.leftSection}>
-            <View style={[style.listIcon, { backgroundColor: item.backgroundColor }]} >
-              <FeatherIcon name={item.icon} color="#fff" size={21} />
+            <View
+              style={[style.listIcon, {backgroundColor: item.backgroundColor}]}>
+              {renderIcon(item)}
             </View>
             <View>
-              <Text style={style.listTitle}>{item.title}</Text>
-              {item.description && (<Text style={style.listDescription}>{item.description}</Text>)}
+              <Text style={[{color: theme.bgDark}, fontStyles.fnt16Regular]}>
+                {item.title}
+              </Text>
+              {item.description && (
+                <Text style={[{color: theme.bgDark}, fontStyles.fnt12Regular]}>
+                  {item.description}
+                </Text>
+              )}
             </View>
           </View>
           <View style={style.rightSection}>
-            {item.buttonText && (<Button style={{ borderColor: '#d6d6d6' }} textColor='#0047ab' mode={item.buttonType} >{item.buttonText} </Button>)}
-            {item.nextPage && <FeatherIcon name='chevron-right' size={22} />}
+            {item.buttonText && (
+              <View style={style.button} activeOpacity={0.7}>
+                <Text style={{color: theme.bgDark}}>{item.buttonText}</Text>
+              </View>
+            )}
+            {item.nextPage && (
+              <FeatherIcon
+                name="chevron-right"
+                color={theme.bgDark}
+                size={18}
+              />
+            )}
           </View>
         </View>
       </Pressable>
     </View>
-  ))
+  ));
 
-
-  return (
-    <View style={{ marginTop: 20 }}>
-      {listArr}
-    </View>
-  )
-}
+  return <View>{renderListItems}</View>;
+};
 
 export default AccountList;

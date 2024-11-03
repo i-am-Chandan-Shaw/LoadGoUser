@@ -14,10 +14,7 @@ const ChooseVehicle = ({ onPress, amount,discountReceived, selectGoods, paymentM
     const [offerApplied, setOfferApplied] = useState(false)
     const [discount, setDiscount] = useState(0)
     const applyCoupon = () => {
-        setOfferApplied(true);
-        setDiscount(300)
-        discountReceived(300)
-        Alert.alert("Hooray ! You got flat ₹ 300 discount on this trip.")
+        Alert.alert("Sorry ! No cupons available right now")
     }
 
 
@@ -96,7 +93,7 @@ const ChooseVehicle = ({ onPress, amount,discountReceived, selectGoods, paymentM
                     </View>
                     <View style={style.verticalBorder}></View>
                     <Pressable style={style.coupon} onPress={applyCoupon}>
-                        <Text style={{ color: 'green', fontSize: 16, fontWeight: 600 }}>Apply Offer</Text>
+                        <Text style={{ color: 'green', fontSize: 16, fontWeight: 600 }}>Apply Cupon</Text>
                         <Image style={{ width: 25, height: 25, marginLeft: 10 }} source={imagePath.discount} />
                     </Pressable>
                 </View>

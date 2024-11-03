@@ -1,16 +1,19 @@
 import React, { useEffect } from 'react';
 import { View, Image } from 'react-native';
-import style from './style';
 import { locationPermission } from '../../core/helper/helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import commonStyles from '../../constants/commonStyle';
+import { useTheme } from "../../constants/ThemeContext";
+
 
 const SplashScreen=({navigation})=>{
+    const { theme } = useTheme()
 
     useEffect(()=>{
         const timeout = setTimeout(() => {
             getLiveLocation();
             checkAuthentication()
-        }, 500);
+        }, 1000);
     },[])
 
     const checkAuthentication = async () => {
@@ -53,9 +56,13 @@ const SplashScreen=({navigation})=>{
     
 
 return (
-    <View style={style.container}>
-        <Image style={style.image} source={require('../../assets/illustrations/delivery.png')} />
-        {/* <Text style={style.logoText}>LOAD GO</Text> */}
+    <View style={[commonStyles.flexCenter]}>
+       <Image 
+    style={{ width: '40%', height: undefined, aspectRatio: 470 / 347 }} 
+    source={require('../../assets/images/logo.png')} 
+    resizeMode="contain" 
+/>
+
     </View>
     )
 }

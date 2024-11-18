@@ -79,8 +79,8 @@ export function getStatusValueById(id) {
         { "id": 3, "value": "Revoked" },
         { "id": 4, "value": "Started" },
         { "id": 5, "value": "Completed" },
-        { "id": 6, "value": "Cancelled By User" },
-        { "id": 7, "value": "Cancelled By Driver" },
+        { "id": 6, "value": "Cancelled" },
+        { "id": 7, "value": "Cancelled" },
         { "id": 8, "value": "Request Timeout" }
     ];
 

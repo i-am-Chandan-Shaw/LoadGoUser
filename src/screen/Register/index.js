@@ -1,37 +1,37 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
   Keyboard,
   ScrollView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Alert,
 } from 'react-native';
 import style from './style';
 import AppTextInput from '../../core/component/AppTextInput';
 
-import {Snackbar, Provider, ActivityIndicator} from 'react-native-paper';
+import {Snackbar, Appbar} from 'react-native-paper';
 import {get, post} from '../../core/helper/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppContext} from '../../core/helper/AppContext';
+import AppLoader from '../../core/component/AppLoader';
+import Colors from '../../constants/Colors';
+import FontSize from '../../constants/FontSize';
+import commonStyles from '../../constants/commonStyle';
 
 const Register = ({route, navigation}) => {
   const [visible, setVisible] = useState(false);
   const [snackBarText, setSnackBarText] = useState('Please fill all the data');
   const [isLoading, setIsLoading] = useState(false);
-  const [valid, setValid] = useState(false);
-  const {globalData, setGlobalData} = useContext(AppContext);
-  const [registeredData, setRegisterData] = useState({
-    firstName: '',
-    lastName: '',
+  const {setGlobalData} = useContext(AppContext);
+  const [formData, setFormData] = useState({
+    fullName: '',
     email: '',
+    phone: route.params?.phone || '',
   });
 
-  const handleAlertOK = data => {
-    // Logic to handle "OK" button press
-    navigation.replace('Home', {data});
-  };
-  const showAlert = data => {
+  const showAlert = () => {
     Alert.alert(
       'Registration Successful',
       'Your have successfully registered yourself, Please press OK to continue',
@@ -39,7 +39,7 @@ const Register = ({route, navigation}) => {
         {
           text: 'OK',
           onPress: () => {
-            handleAlertOK(data);
+            navigation.replace('Home');
           },
         },
       ],
@@ -51,18 +51,18 @@ const Register = ({route, navigation}) => {
     setIsLoading(true);
     try {
       let payload = {
-        name: registeredData.firstName + ' ' + registeredData.lastName,
-        email: registeredData.email,
-        phone: registeredData.phone,
-        loginPin: '1234',
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        login: '1234',
       };
+      console.log(payload);
+
       const data = await post(payload, 'registerUser');
       if (data) {
         console.log(data);
         setIsLoading(false);
-        setUserId(data.id);
-        setUserLocally(data.id);
-        setGlobalData('userId', id);
+        saveToLocalStorage(data.id);
       }
     } catch (error) {
       console.log('register user error =>', error);
@@ -70,72 +70,47 @@ const Register = ({route, navigation}) => {
     }
   };
 
-  useEffect(() => {
-    setValid(isDataValid);
-  }, [registeredData]);
-  useEffect(() => {
-    setRegisterData({
-      phone: route.params?.phone,
-      ...registeredData,
-    });
-  }, []);
+  const saveToLocalStorage = async id => {
+    const queryParameter = `?userId=${id.toString()}`;
 
-  // Set local storage
-  const setUserId = async id => {
     try {
-      await AsyncStorage.setItem('isLoggedIn', 'true');
       await AsyncStorage.setItem('userId', id.toString());
-      console.log('Data saved successfully!');
-    } catch (error) {
-      console.log('Error saving data:', error);
-    }
-  };
+      console.log('User ID saved locally!');
 
-  const setUserLocally = async id => {
-    const queryParameter = '?userId=' + id.toString();
-    try {
       const data = await get('getUser', queryParameter);
+
       if (data) {
-        await AsyncStorage.setItem('userData', JSON.stringify(data));
         setGlobalData('userData', data);
-        showAlert(data);
+        showAlert();
+        console.log('User data saved in global context!');
+      } else {
+        console.log('No user data returned from API');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Error setting user data:', error);
     }
   };
 
   const validateInputs = (text, type) => {
-    let nameRegex = /^[a-zA-Z\s]*$/;
-    if ((type == 'firstName' || type == 'lastName') && nameRegex.test(text)) {
-      setRegisterData({
-        ...registeredData,
+    const isValidFullName = /^[a-zA-Z\s]*$/.test(text);
+    if (type === 'fullName' ? isValidFullName : true) {
+      setFormData(prevState => ({
+        ...prevState,
         [type]: text,
-      });
-    } else if (type != 'firstName' || type != 'last Name') {
-      setRegisterData({
-        ...registeredData,
-        [type]: text,
-      });
+      }));
     }
   };
 
-  const isDataValid = () => {
-    let isValid = true;
-    for (let item in registeredData) {
-      if (registeredData[item] == '') {
-        isValid = false;
-      }
-    }
-    return isValid;
-  };
+  const isDataValid = () =>
+    Object.values(formData).every(value => value !== '');
 
   const validateForm = () => {
-    let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+
     if (!isDataValid()) {
       setSnackBarText('Please fill all the data');
       setVisible(true);
-    } else if (!emailRegex.test(registeredData.email)) {
+    } else if (!emailRegex.test(formData.email)) {
       setSnackBarText('Invalid Email');
       setVisible(true);
     } else {
@@ -144,74 +119,80 @@ const Register = ({route, navigation}) => {
   };
 
   const onDismissSnackBar = () => setVisible(false);
+  const handleBackPress = () => {};
 
   return (
-    <ScrollView
-      automaticallyAdjustKeyboardInsets={true}
-      style={style.container}>
-      <Provider>
-        <View style={style.mainContainer} onPress={Keyboard.dismiss}>
-          <View>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
-              <Text style={style.headerText}>Create An Account</Text>
-              <Text style={[style.subHeaderText]}>
-                Let's get you registered !{' '}
-              </Text>
-            </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={{flex: 1}}>
+        <Appbar.Header style={{backgroundColor: Colors.bgLight}}>
+          <Appbar.BackAction size={20} onPress={handleBackPress} />
+          <Appbar.Content
+            title="Back"
+            titleStyle={{fontSize: FontSize.medium}}
+          />
+        </Appbar.Header>
+        <View style={[commonStyles.mainContainer, commonStyles.p16]}>
+          <ScrollView automaticallyAdjustKeyboardInsets={true}>
             <View>
-              <AppTextInput
-                onChangeText={text => validateInputs(text, 'firstName')}
-                value={registeredData.firstName}
-                height={50}
-                placeholder="First Name"
-              />
-              <AppTextInput
-                onChangeText={text => validateInputs(text, 'lastName')}
-                value={registeredData.lastName}
-                height={50}
-                placeholder="Last Name"
-              />
-              <AppTextInput
-                onChangeText={text => validateInputs(text, 'email')}
-                value={registeredData.email}
-                inputMode="email"
-                height={50}
-                placeholder="Email"
-              />
-            </View>
-          </View>
+              {isLoading && <AppLoader />}
+              <View>
+                <Text
+                  style={[
+                    commonStyles.fnt24Medium,
+                    commonStyles.textPrimary,
+                    commonStyles.mb24,
+                  ]}>
+                  Sign up
+                </Text>
 
-          <TouchableOpacity
-            disabled={!valid}
-            style={[
-              style.signInButton,
-              !valid ? style.signInButtonDisabled : {},
-            ]}
-            onPress={validateForm}>
-            <Text style={[style.signInText, {marginLeft: 30}]}>Register</Text>
-            <View style={{width: 30}}>
-              {isLoading && (
-                <ActivityIndicator animating={true} color={'#fff'} />
-              )}
+                <View style={{gap: 20}}>
+                  <AppTextInput
+                    onChangeText={text => validateInputs(text, 'fullName')}
+                    value={formData.fullName}
+                    height={50}
+                    placeholder="Full Name"
+                  />
+                  <AppTextInput
+                    onChangeText={text => validateInputs(text, 'email')}
+                    value={formData.email}
+                    inputMode="email"
+                    height={50}
+                    placeholder="Email"
+                  />
+                </View>
+              </View>
+
+              <Snackbar
+                style={style.snackBar}
+                visible={visible}
+                duration={4000}
+                onDismiss={onDismissSnackBar}
+                action={{
+                  label: 'OK',
+                  labelStyle: {color: '#fff'},
+                  onPress: () => {
+                    // Do something
+                  },
+                }}>
+                {snackBarText}
+              </Snackbar>
             </View>
+          </ScrollView>
+          <TouchableOpacity
+            style={commonStyles.btnPrimary}
+            onPress={validateForm}>
+            <Text
+              style={[
+                commonStyles.fnt16Medium,
+                commonStyles.textCenter,
+                commonStyles.textWhite,
+              ]}>
+              Register
+            </Text>
           </TouchableOpacity>
-          <Snackbar
-            style={style.snackBar}
-            visible={visible}
-            duration={4000}
-            onDismiss={onDismissSnackBar}
-            action={{
-              label: 'OK',
-              labelStyle: {color: '#fff'},
-              onPress: () => {
-                // Do something
-              },
-            }}>
-            {snackBarText}
-          </Snackbar>
         </View>
-      </Provider>
-    </ScrollView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

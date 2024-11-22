@@ -1,70 +1,63 @@
-import React, { useEffect } from 'react';
-import { View, Image } from 'react-native';
-import { locationPermission } from '../../core/helper/helper';
+import React, {useEffect} from 'react';
+import {View, Image} from 'react-native';
+import {locationPermission} from '../../core/helper/helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import commonStyles from '../../constants/commonStyle';
-import { useTheme } from "../../constants/ThemeContext";
+import {useTheme} from '../../constants/ThemeContext';
 
+const SplashScreen = ({navigation}) => {
+  const {theme} = useTheme();
 
-const SplashScreen=({navigation})=>{
-    const { theme } = useTheme()
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      getLiveLocation();
+      checkAuthentication();
+    }, 1000);
+  }, []);
 
-    useEffect(()=>{
-        const timeout = setTimeout(() => {
-            getLiveLocation();
-            checkAuthentication()
-        }, 1000);
-    },[])
-
-    const checkAuthentication = async () => {
-        try {
-            const value = await AsyncStorage.getItem('isLoggedIn');
-            if (value !== null) {
-                if(value=='true'){
-                    navigation.replace('Home')
-                }
-                else{
-                    navigation.replace('Login')
-                    return false
-                }
-            } else {
-                navigation.replace('Login')
-                console.log('Data not found!');
-                return false
-            }
-        } catch (error) {
-            console.log('Error retrieving data:', error);
-            return false
+  const checkAuthentication = async () => {
+    try {
+      const value = await AsyncStorage.getItem('isLoggedIn');
+      if (value !== null) {
+        if (value == 'true') {
+          navigation.replace('Home');
+        } else {
+          navigation.replace('Login');
+          return false;
         }
+      } else {
+        navigation.replace('Login');
+        console.log('Data not found!');
+        return false;
+      }
+    } catch (error) {
+      console.log('Error retrieving data:', error);
+      return false;
     }
+  };
 
-    // Getting Location Access
+  // Getting Location Access
 
-    const getLiveLocation = async () => {
-        try{
-            const status = await locationPermission()
-            if (status) {
-                console.log('Permission Granted');
-            }
-        }catch(error){
-            console.log(error);
-            
-        }
-       
+  const getLiveLocation = async () => {
+    try {
+      const status = await locationPermission();
+      if (status) {
+        console.log('Permission Granted');
+      }
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    
-
-return (
+  return (
     <View style={[commonStyles.flexCenter]}>
-       <Image 
-    style={{ width: '40%', height: undefined, aspectRatio: 470 / 347 }} 
-    source={require('../../assets/images/logo.png')} 
-    resizeMode="contain" 
-/>
-
+      <Image
+        style={{width: '40%', height: undefined, aspectRatio: 470 / 347}}
+        source={require('../../assets/images/logo.png')}
+        resizeMode="contain"
+      />
     </View>
-    )
-}
+  );
+};
 
 export default SplashScreen;

@@ -20,6 +20,5 @@ module.exports = {
         relativeSourceLocation: true,
       },
     ],
-    process.env.NODE_ENV === 'production' && 'transform-remove-console',
-  ].filter(Boolean),
+  ],
 };

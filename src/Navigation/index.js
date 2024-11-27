@@ -17,7 +17,7 @@ import TermsAndConditions from '../screen/TermsAndConditions';
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const {globalData, setGlobalData} = useContext(AppContext);
+  const {setGlobalData} = useContext(AppContext);
   useEffect(() => {
     getDataFromStorage('userId');
     getDataFromStorage('userData');
@@ -41,7 +41,7 @@ const Navigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Register"
+        initialRouteName="Intro"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Intro" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} />

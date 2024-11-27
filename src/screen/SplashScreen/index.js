@@ -17,14 +17,9 @@ const SplashScreen = ({navigation}) => {
 
   const checkAuthentication = async () => {
     try {
-      const value = await AsyncStorage.getItem('isLoggedIn');
+      const value = await AsyncStorage.getItem('userId');
       if (value !== null) {
-        if (value == 'true') {
-          navigation.replace('Home');
-        } else {
-          navigation.replace('Login');
-          return false;
-        }
+        navigation.replace('Home');
       } else {
         navigation.replace('Login');
         console.log('Data not found!');

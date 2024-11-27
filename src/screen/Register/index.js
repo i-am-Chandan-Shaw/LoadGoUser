@@ -8,9 +8,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
 } from 'react-native';
-import style from './style';
 import AppTextInput from '../../core/component/AppTextInput';
-
 import {Snackbar, Appbar} from 'react-native-paper';
 import {get, post} from '../../core/helper/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,6 +17,7 @@ import AppLoader from '../../core/component/AppLoader';
 import Colors from '../../constants/Colors';
 import FontSize from '../../constants/FontSize';
 import commonStyles from '../../constants/commonStyle';
+import styles from './style';
 
 const Register = ({route, navigation}) => {
   const [visible, setVisible] = useState(false);
@@ -54,7 +53,7 @@ const Register = ({route, navigation}) => {
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        login: '1234',
+        loginPin: '1234',
       };
       console.log(payload);
 
@@ -161,21 +160,6 @@ const Register = ({route, navigation}) => {
                   />
                 </View>
               </View>
-
-              <Snackbar
-                style={style.snackBar}
-                visible={visible}
-                duration={4000}
-                onDismiss={onDismissSnackBar}
-                action={{
-                  label: 'OK',
-                  labelStyle: {color: '#fff'},
-                  onPress: () => {
-                    // Do something
-                  },
-                }}>
-                {snackBarText}
-              </Snackbar>
             </View>
           </ScrollView>
           <TouchableOpacity
@@ -191,6 +175,20 @@ const Register = ({route, navigation}) => {
             </Text>
           </TouchableOpacity>
         </View>
+        <Snackbar
+          style={styles.snackBar}
+          visible={visible}
+          duration={4000}
+          onDismiss={onDismissSnackBar}
+          action={{
+            label: 'OK',
+            labelStyle: {color: '#fff'},
+            onPress: () => {
+              // Do something
+            },
+          }}>
+          {snackBarText}
+        </Snackbar>
       </View>
     </TouchableWithoutFeedback>
   );

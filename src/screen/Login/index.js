@@ -143,13 +143,13 @@ const Login = ({navigation}) => {
       setLoading(true);
       setEnteredOtp(['', '', '', '', '', '']);
 
-    //   const response = await fetch(
-    //     'https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' +
-    //       newOtp +
-    //       '&route=otp&numbers=' +
-    //       phoneNumber,
-    //   ); // Replace with your API endpoint
-      if (true) {
+      const response = await fetch(
+        'https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' +
+          newOtp +
+          '&route=otp&numbers=' +
+          phoneNumber,
+      ); // Replace with your API endpoint
+      if (response) {
         setLoading(false);
         setConfirm(true);
       }

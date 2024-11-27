@@ -18,6 +18,8 @@ import commonStyles from '../../constants/commonStyle';
 import {useTheme} from '../../constants/ThemeContext';
 import useFontStyles from '../../constants/fontStyle';
 
+import {FAST2SMS_API} from '@env';
+
 const Login = ({navigation}) => {
   const {theme} = useTheme();
   const fontStyles = useFontStyles();
@@ -84,7 +86,7 @@ const Login = ({navigation}) => {
           setLoading(false);
           setAuthenticated(data.id);
           setUserLocally(data.id);
-          setGlobalData('userId', id);
+          setGlobalData('userId', data.id);
         } else {
           navigation.replace('Register', {phone: phone});
         }
@@ -144,7 +146,7 @@ const Login = ({navigation}) => {
       setEnteredOtp(['', '', '', '', '', '']);
 
       const response = await fetch(
-        'https://www.fast2sms.com/dev/bulkV2?authorization=rL4MxpFumIvbgGOf0UaP2XBR8Wqo7y6Vi1lThK5jknDc3HswzN9rxfpFHbe0wcoWGOXTvP6RtDmAIdQ5&route=otp&variables_values=' +
+        `https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_API}&route=otp&variables_values=` +
           newOtp +
           '&route=otp&numbers=' +
           phoneNumber,

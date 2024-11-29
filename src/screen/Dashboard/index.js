@@ -30,6 +30,7 @@ import ReceiverDetails from '../../core/View/ReceiverDetails';
 import LocationAccess from '../LocationAccess';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {get} from '../../core/helper/services';
+import ConfirmLocation from '../../core/View/ConfirmLoation';
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -40,7 +41,8 @@ const Dashboard = () => {
   const mapRef = useRef();
   const markerRef = useRef();
   const bottomSheetRef = useRef(null);
-  const snapPoints = [270];
+  const [snapPoints, setSnapPoints] = useState([270]);
+  const [mapHeight, setMapHeight] = useState(height); //
   const [isRiding, setIsRiding] = useState(false);
 
   const navigation = useNavigation();
@@ -48,7 +50,7 @@ const Dashboard = () => {
   // States
   const [address, setAddress] = useState({pickUp: '', drop: ''});
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [locationAccessed, setLocationAccess] = useState(false);
+  const [locationAccessed, setLocationAccessed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tripData, setTripData] = useState(null);
   const [state, setState] = useState({
@@ -63,6 +65,7 @@ const Dashboard = () => {
     }),
     currentAddress: '',
   });
+
   const [amount, setAmount] = useState({
     tataAce: null,
     bolero: null,
@@ -74,6 +77,14 @@ const Dashboard = () => {
     perKm: 30,
     perHour: 100,
   });
+
+  useEffect(() => {
+    if (Object.keys(state.dropCords).length > 0) {
+      openBottomSheet(270);
+    } else {
+      setMapHeight(height);
+    }
+  }, [state.dropCords]);
 
   useEffect(() => {
     getLiveLocation(false);
@@ -176,7 +187,7 @@ const Dashboard = () => {
   const getLiveLocation = async openSettings => {
     openSettings = openSettings ? true : openSettings;
     try {
-      setLocationAccess(false);
+      setLocationAccessed(false);
       const status = await locationPermission();
       if (status === 'granted') {
         setIsLoading(true);
@@ -190,7 +201,7 @@ const Dashboard = () => {
             longitudeDelta: LONGITUDE_DELTA,
           };
         });
-        setLocationAccess(true);
+        setLocationAccessed(true);
         setAddress({
           ...address,
           pickUp: await getAddressFromCoordinates(latitude, longitude),
@@ -210,7 +221,7 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      setLocationAccess(false);
+      setLocationAccessed(false);
       setIsLoading(false);
       console.log(error);
       if (openSettings) Linking.openSettings();
@@ -277,7 +288,9 @@ const Dashboard = () => {
     });
   };
 
-  const openBottomSheet = () => {
+  const openBottomSheet = sheetHeight => {
+    setSnapPoints([sheetHeight]);
+    setMapHeight(height - sheetHeight);
     bottomSheetRef.current?.present();
   };
 
@@ -390,7 +403,7 @@ const Dashboard = () => {
 
             <MapView
               ref={mapRef}
-              style={style.mapContainer}
+              style={[style.mapContainer, {height: mapHeight}]}
               initialRegion={currentLocation}
               toolbarEnabled={false}
               loadingEnabled={false}
@@ -402,50 +415,20 @@ const Dashboard = () => {
                 });
               }}>
               {/* Current Location Marker */}
-              {Object.keys(state.pickupCords).length == 0 && (
-                <Marker.Animated
-                  coordinate={state.coordinate}
-                  onPress={() => {
-                    searchLocation('pickup');
-                  }}
-                  ref={markerRef}>
-                  <CustomMarker
-                    headerText={'Pickup Location:'}
-                    text={address.pickUp}
-                    coordinates={currentLocation}
-                    imgSrc={imagePath.pickupMarker}
-                  />
+              {Object.keys(state.pickupCords).length === 0 && (
+                <Marker.Animated coordinate={state.coordinate} ref={markerRef}>
+                  <Image style={[style.img]} source={imagePath.pickupMarker} />
                 </Marker.Animated>
               )}
 
-              {/* {Object.keys(state.pickupCords).length > 0 && (<Marker coordinate={state.pickupCords}>
-                            <Image style={{ height: 25, width: 25 }} source={imagePath.currentLocationMarker} />
-                        </Marker>)} */}
-
               {Object.keys(state.pickupCords).length > 0 && !isRiding && (
-                <Marker
-                  onPress={() => {
-                    searchLocation('pickup');
-                  }}
-                  coordinate={state.pickupCords}>
-                  <CustomMarker
-                    headerText={'Pickup Location:'}
-                    text={address.pickUp}
-                    imgSrc={imagePath.pickupMarker}
-                  />
+                <Marker coordinate={state.pickupCords}>
+                  <Image style={[style.img]} source={imagePath.pickupMarker} />
                 </Marker>
               )}
               {Object.keys(state.dropCords).length > 0 && !isRiding && (
-                <Marker
-                  coordinate={state.dropCords}
-                  onPress={() => {
-                    searchLocation('drop');
-                  }}>
-                  <CustomMarker
-                    headerText={'Drop Location:'}
-                    text={address.drop}
-                    imgSrc={imagePath.dropMarker}
-                  />
+                <Marker coordinate={state.dropCords}>
+                  <Image style={[style.img]} source={imagePath.dropMarker} />
                 </Marker>
               )}
               {Object.keys(state.dropCords).length > 0 &&
@@ -456,7 +439,7 @@ const Dashboard = () => {
                     destination={state.dropCords}
                     apikey={GOOGLE_MAPS_API_KEY}
                     strokeWidth={3}
-                    strokeColor="#666"
+                    strokeColor="#000"
                     optimizeWaypoints={true}
                     onReady={result => {
                       setState({
@@ -476,8 +459,6 @@ const Dashboard = () => {
 
                       setAmount({
                         tataAce: parseInt(tataAceFare),
-                        bolero: parseInt(boleroFare),
-                        bike: parseInt(tataAceFare * 0.6),
                       });
 
                       mapRef.current.fitToCoordinates(result.coordinates, {
@@ -494,14 +475,6 @@ const Dashboard = () => {
                 onPress={onCenter}>
                 <Image source={imagePath.liveLocationBtn} />
               </TouchableOpacity>
-              {Object.keys(state.dropCords).length > 0 && (
-                <Button
-                  mode="contained"
-                  style={{backgroundColor: '#0047ab', width: '100%'}}
-                  onPress={openBottomSheet}>
-                  Confirm Location
-                </Button>
-              )}
             </View>
             <BottomSheetModal
               ref={bottomSheetRef}
@@ -515,7 +488,8 @@ const Dashboard = () => {
               }}
               snapPoints={snapPoints}>
               <View style={style.bottomSheetPopup}>
-                <ReceiverDetails passDetails={bookVehicle} />
+                {/* <ReceiverDetails passDetails={bookVehicle} /> */}
+                <ConfirmLocation />
               </View>
             </BottomSheetModal>
           </View>

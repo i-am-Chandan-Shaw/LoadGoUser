@@ -5,7 +5,7 @@ import style from './style';
 
 const LocationInputButton = ({onPress, text, textColor, iconColor, styles}) => {
   return (
-    <Pressable style={[style.mainContainer, styles]} onPress={onPress}>
+    <Pressable style={[style.mainContainer, styles]} onPressIn={onPress}>
       <View style={style.container}>
         <View style={style.inputContainer}>
           <FAIcon name="search" size={12} color={iconColor} />

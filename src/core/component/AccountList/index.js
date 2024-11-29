@@ -21,7 +21,7 @@ const AccountList = ({userData}) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.setItem('isLoggedIn', 'false');
+      await AsyncStorage.removeItem('userId');
       navigation.replace('Login');
     } catch (error) {
       console.error('Error logging out:', error);

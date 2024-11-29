@@ -1,11 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Alert, Image, Pressable} from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  Image,
+  Pressable,
+  TouchableOpacity,
+} from 'react-native';
 import style from './style';
 import ANTIcon from 'react-native-vector-icons/AntDesign';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import imagePath from '../../../constants/imagePath';
 import Vehicle from '../../component/Vehicle';
 import {Picker} from '@react-native-picker/picker';
+import commonStyles from '../../../constants/commonStyle';
+import {useTheme} from '../../../constants/ThemeContext';
 
 const ChooseVehicle = ({
   onPress,
@@ -16,6 +25,7 @@ const ChooseVehicle = ({
   changeMethod,
   receiverData: receiverData,
 }) => {
+  const {theme} = useTheme();
   const [selectedGoods, setSelectedGoods] = useState('Loose Goods');
   const [offerApplied, setOfferApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
@@ -118,13 +128,23 @@ const ChooseVehicle = ({
             />
           </Pressable>
         </View>
-        <Pressable onPress={onPress} style={[style.confirmationButton]}>
+        <TouchableOpacity onPress={onPress} style={commonStyles.btnPrimary}>
+          <Text
+            style={[
+              commonStyles.fnt16Medium,
+              commonStyles.textCenter,
+              {color: theme.white},
+            ]}>
+            Book Vehicle
+          </Text>
+        </TouchableOpacity>
+        {/* <Pressable onPress={onPress} style={[style.confirmationButton]}>
           <Text style={{color: '#fff', fontSize: 15, fontWeight: 600}}>
             Book Vehicle
           </Text>
           <View style={{marginRight: 10}}></View>
           <ANTIcon name="arrowright" size={20} color={'#fff'} />
-        </Pressable>
+        </Pressable> */}
       </View>
       <View>
         <View style={style.inputStyle}>

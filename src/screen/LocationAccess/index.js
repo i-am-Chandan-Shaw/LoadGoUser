@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Text, View, StyleSheet} from 'react-native';
+import {Image, Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useTheme} from '../../constants/ThemeContext';
 import imagePath from '../../constants/imagePath';
@@ -22,7 +22,7 @@ const LocationAccess = ({onPress}) => {
           commonStyles.mb16,
           {color: theme.bgDark},
         ]}>
-        Allow your location
+        Enable your location
       </Text>
       <Text
         style={[
@@ -31,15 +31,20 @@ const LocationAccess = ({onPress}) => {
           commonStyles.textCenter,
           {color: theme.bgDark},
         ]}>
-        We will need your location to give you a better experience
+        Choose your location to start find the request around you
       </Text>
-      <Button
-        mode="contained"
+      <TouchableOpacity
         onPress={onPress}
-        buttonColor={theme.bgPrimary}
-        style={[styles.button, commonStyles.mb16]}>
-        Enable Location Service
-      </Button>
+        style={[commonStyles.btnPrimary, commonStyles.mb30]}>
+        <Text
+          style={[
+            commonStyles.fnt16Medium,
+            commonStyles.textCenter,
+            commonStyles.textWhite,
+          ]}>
+          Use my location
+        </Text>
+      </TouchableOpacity>
       <Text
         style={[
           fontStyles.fnt12Regular,

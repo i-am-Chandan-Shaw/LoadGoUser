@@ -1,6 +1,5 @@
 import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {REACT_APP_MAPS_API} from '@env';
 
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
@@ -117,26 +116,13 @@ export function convertTo12HourFormat(time24h) {
 
   return time12h;
 }
-export const setUserLocally = async id => {
-  const queryParameter = `?userId=${id.toString()}`;
 
-  try {
-    // Save userId to AsyncStorage (or other local storage)
-    await AsyncStorage.setItem('userId', id.toString());
-    console.log('User ID saved locally!');
+export function convertMinToHours(durationInMin) {
+  const hours = Math.floor(durationInMin / 60); // Calculate whole hours
+  const minutes = Math.floor(durationInMin % 60); // Remaining minutes
 
-    // Call API to fetch user data
-    const data = await get('getUser', queryParameter);
-
-    // If data is received, save it in the global context
-    if (data) {
-      setGlobalData('userData', data);
-      console.log('User data saved in global context!');
-    } else {
-      console.log('No user data returned from API');
-    }
-  } catch (error) {
-    // Handle any errors that may occur during either operation
-    console.error('Error setting user data:', error);
+  if (hours > 0) {
+    return `${hours} hrs ${minutes} mins`;
   }
-};
+  return `${minutes} mins`;
+}

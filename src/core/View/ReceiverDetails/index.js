@@ -1,11 +1,14 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {ScrollView, View, Text} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {ScrollView, View, Text, TouchableOpacity} from 'react-native';
 import {TextInput, Checkbox, Button} from 'react-native-paper';
 import style from './style';
 import {AppContext} from '../../helper/AppContext';
+import commonStyles from '../../../constants/commonStyle';
+import {useTheme} from '../../../constants/ThemeContext';
 
 const ReceiverDetails = ({passDetails}) => {
-  const {globalData, setGlobalData} = useContext(AppContext);
+  const {theme} = useTheme();
+  const {globalData} = useContext(AppContext);
   const [checked, setChecked] = useState(false);
   const [receiverData, setReceiverData] = useState({
     name: '',
@@ -36,11 +39,13 @@ const ReceiverDetails = ({passDetails}) => {
 
   return (
     <ScrollView style={style.container} keyboardShouldPersistTaps="never">
-      <Text>Receiver Details</Text>
+      <Text style={[commonStyles.fnt16Medium, commonStyles.textCenter]}>
+        Receiver Details
+      </Text>
       <TextInput
         label="Name *"
-        outlineColor="#333"
-        color="#333"
+        outlineColor="#000"
+        color="#000"
         value={receiverData.name}
         onChangeText={text => setReceiverData({...receiverData, name: text})}
         style={style.inputStyle}
@@ -48,7 +53,7 @@ const ReceiverDetails = ({passDetails}) => {
       <TextInput
         label="Phone Number *"
         keyboardType="number-pad"
-        outlineColor="#333"
+        outlineColor="#000"
         maxLength={10}
         onChangeText={text =>
           setReceiverData({
@@ -57,7 +62,7 @@ const ReceiverDetails = ({passDetails}) => {
           })
         }
         value={receiverData.phoneNo}
-        color="#333"
+        color="#000"
         style={style.inputStyle}
       />
       <View style={style.selfContainer}>
@@ -67,17 +72,19 @@ const ReceiverDetails = ({passDetails}) => {
         />
         <Text>Self</Text>
       </View>
-      <Button
-        mode="contained"
+      <TouchableOpacity
         disabled={!isValid}
-        style={[
-          style.confirmationButton,
-          {backgroundColor: isValid ? '#0047ab' : '#d6d6d6'},
-        ]}
-        onPress={confirmDetails}>
-        {' '}
-        Confirm & Proceed{' '}
-      </Button>
+        onPress={confirmDetails}
+        style={isValid ? commonStyles.btnPrimary : commonStyles.btnDisabled}>
+        <Text
+          style={[
+            commonStyles.fnt16Medium,
+            commonStyles.textCenter,
+            {color: theme.white},
+          ]}>
+          Confirm Details
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };

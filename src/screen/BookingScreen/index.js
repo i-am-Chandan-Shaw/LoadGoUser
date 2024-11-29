@@ -29,7 +29,7 @@ const LATITUDE_DELTA = 0.0122;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const BookingScreen = props => {
-  const {globalData, setGlobalData} = useContext(AppContext);
+  const {globalData} = useContext(AppContext);
   let waitingTimeout;
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);

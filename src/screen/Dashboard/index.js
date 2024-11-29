@@ -64,6 +64,7 @@ const Dashboard = () => {
       longitudeDelta: LONGITUDE_DELTA,
     }),
     currentAddress: '',
+    isLocationConfirmed: false,
   });
 
   const [amount, setAmount] = useState({
@@ -80,9 +81,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (Object.keys(state.dropCords).length > 0) {
-      openBottomSheet(270);
-    } else {
-      setMapHeight(height);
+      openBottomSheet(310);
     }
   }, [state.dropCords]);
 
@@ -299,7 +298,10 @@ const Dashboard = () => {
       ...state,
       dropCords: {},
       pickupCords: currentLocation,
+      isLocationConfirmed: false,
     });
+
+    setMapHeight(height);
 
     setAddress({
       drop: '',
@@ -311,6 +313,16 @@ const Dashboard = () => {
 
     onCenter();
     bottomSheetRef.current?.close();
+  };
+
+  const confirmLocationDetails = () => {
+    console.log('confirmed');
+    setState({
+      ...state,
+      isLocationConfirmed: true,
+    });
+
+    openBottomSheet(290);
   };
 
   const bookVehicle = data => {
@@ -447,6 +459,8 @@ const Dashboard = () => {
                         directionDetails: result,
                       });
 
+                      console.log(result.distance);
+
                       let kmPrice = fare.perKm;
                       let tataAceFare =
                         fare.baseFare + result.distance * kmPrice;
@@ -454,9 +468,10 @@ const Dashboard = () => {
                         fare.baseFare + result.distance * kmPrice;
                       if (result.duration > 120) {
                         tataAceFare = tataAceFare + (result.duration - 120) * 2;
-                        boleroFare = boleroFare + (result.duration - 120) * 2;
                       }
-
+                      if (result.distance < 5) {
+                        tataAceFare = 200;
+                      }
                       setAmount({
                         tataAce: parseInt(tataAceFare),
                       });
@@ -488,8 +503,18 @@ const Dashboard = () => {
               }}
               snapPoints={snapPoints}>
               <View style={style.bottomSheetPopup}>
-                {/* <ReceiverDetails passDetails={bookVehicle} /> */}
-                <ConfirmLocation />
+                {state.isLocationConfirmed && (
+                  <ReceiverDetails passDetails={bookVehicle} />
+                )}
+                {!state.isLocationConfirmed && (
+                  <ConfirmLocation
+                    duration={state.directionDetails.duration}
+                    distance={state.directionDetails.distance}
+                    pickupAddress={address.pickUp}
+                    dropAddress={address.drop}
+                    confirmLocation={confirmLocationDetails}
+                  />
+                )}
               </View>
             </BottomSheetModal>
           </View>

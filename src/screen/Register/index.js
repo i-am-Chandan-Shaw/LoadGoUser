@@ -18,8 +18,13 @@ import Colors from '../../constants/Colors';
 import FontSize from '../../constants/FontSize';
 import commonStyles from '../../constants/commonStyle';
 import styles from './style';
+import {UserEnum} from '../../constants/enums';
+import {useTheme} from '../../constants/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
-const Register = ({route, navigation}) => {
+const Register = ({route}) => {
+  const navigation = useNavigation();
+  const {theme} = useTheme();
   const [visible, setVisible] = useState(false);
   const [snackBarText, setSnackBarText] = useState('Please fill all the data');
   const [isLoading, setIsLoading] = useState(false);
@@ -70,23 +75,27 @@ const Register = ({route, navigation}) => {
   };
 
   const saveToLocalStorage = async id => {
+    if (!id) {
+      console.error('Invalid user ID');
+      return false;
+    }
     const queryParameter = `?userId=${id.toString()}`;
-
     try {
-      await AsyncStorage.setItem('userId', id.toString());
-      console.log('User ID saved locally!');
-
+      await AsyncStorage.setItem(UserEnum.USER_ID, id.toString());
       const data = await get('getUser', queryParameter);
 
       if (data) {
-        setGlobalData('userData', data);
+        setGlobalData(UserEnum.USER_DATA, data);
         showAlert();
         console.log('User data saved in global context!');
+        return true;
       } else {
-        console.log('No user data returned from API');
+        console.warn('No user data returned from API');
+        return false;
       }
     } catch (error) {
-      console.error('Error setting user data:', error);
+      console.error('Error handling user data:', error);
+      return false;
     }
   };
 
@@ -118,19 +127,30 @@ const Register = ({route, navigation}) => {
   };
 
   const onDismissSnackBar = () => setVisible(false);
-  const handleBackPress = () => {};
+  const handleBackPress = () => {
+    navigation.replace('Login');
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{flex: 1}}>
-        <Appbar.Header style={{backgroundColor: Colors.bgLight}}>
-          <Appbar.BackAction size={20} onPress={handleBackPress} />
+      <View style={commonStyles.flex1}>
+        <Appbar.Header style={{backgroundColor: theme.bgLight}}>
+          <Appbar.BackAction
+            size={20}
+            color={theme.bgDark}
+            onPress={handleBackPress}
+          />
           <Appbar.Content
             title="Back"
-            titleStyle={{fontSize: FontSize.medium}}
+            titleStyle={[commonStyles.fnt16Medium, {color: theme.textPrimary}]}
           />
         </Appbar.Header>
-        <View style={[commonStyles.mainContainer, commonStyles.p16]}>
+        <View
+          style={[
+            commonStyles.flex1,
+            {backgroundColor: theme.bgLight},
+            commonStyles.p16,
+          ]}>
           <ScrollView automaticallyAdjustKeyboardInsets={true}>
             <View>
               {isLoading && <AppLoader />}
@@ -138,8 +158,8 @@ const Register = ({route, navigation}) => {
                 <Text
                   style={[
                     commonStyles.fnt24Medium,
-                    commonStyles.textPrimary,
-                    commonStyles.mb24,
+                    commonStyles.mb30,
+                    {color: theme.textPrimary},
                   ]}>
                   Sign up
                 </Text>

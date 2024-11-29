@@ -9,35 +9,12 @@ import Login from '../screen/Login';
 import TripDetails from '../screen/TripDetails';
 import LiveTracking from '../screen/LiveTracking';
 import Register from '../screen/Register';
-import {AppContext} from '../core/helper/AppContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import RatingScreen from '../screen/RatingScreen';
 import TermsAndConditions from '../screen/TermsAndConditions';
 
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const {setGlobalData} = useContext(AppContext);
-  useEffect(() => {
-    getDataFromStorage('userId');
-    getDataFromStorage('userData');
-  }, []);
-
-  const getDataFromStorage = async key => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        setGlobalData(key, JSON.parse(value));
-      } else {
-        console.log(key, 'Data not found!');
-        return false;
-      }
-    } catch (error) {
-      console.log('Error retrieving data:', error);
-      return false;
-    }
-  };
-
   return (
     <NavigationContainer>
       <Stack.Navigator

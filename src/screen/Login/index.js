@@ -1,3 +1,4 @@
+/* eslint-disable no-catch-shadow */
 import {
   Text,
   TouchableOpacity,
@@ -19,201 +20,73 @@ import {useTheme} from '../../constants/ThemeContext';
 import useFontStyles from '../../constants/fontStyle';
 
 import {FAST2SMS_API} from '@env';
+import {UserEnum} from '../../constants/enums';
+import {useNavigation} from '@react-navigation/native';
 
-const Login = ({navigation}) => {
+const Login = () => {
   const {theme} = useTheme();
   const fontStyles = useFontStyles();
-
-  const [phone, setPhone] = useState(null);
-  const [valid, setValid] = useState(null);
-  const [confirm, setConfirm] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const navigation = useNavigation();
   const {setGlobalData} = useContext(AppContext);
 
-  const onToggleSnackBar = () => setVisible(!visible);
-  const onDismissSnackBar = () => setVisible(false);
+  const [phone, setPhoneNumber] = useState(null);
+  const [isValid, setIsValid] = useState(null);
+  const [otp, setOtp] = useState(null);
+  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']);
+  const [isConfirm, setIsConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [error, setError] = useState(false);
 
-  const [timer, setTimer] = useState(60); // Initial timer value
+  const otpInputs = Array.from({length: 6});
+  const inputRefs = otpInputs.map(() => useRef(null));
+
+  const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-  // Function to start the timer
+  // Snackbar handlers
+  const toggleSnackbar = () => setSnackbarVisible(!snackbarVisible);
+  const dismissSnackbar = () => setSnackbarVisible(false);
+
+  // Timer logic
   const startTimer = () => {
     setTimer(60);
     setIsTimerRunning(true);
   };
 
-  // Function to stop the timer
-  const stopTimer = () => {
-    setIsTimerRunning(false);
-  };
+  const stopTimer = () => setIsTimerRunning(false);
 
   useEffect(() => {
     let intervalId;
-
-    // Start the timer when isTimerRunning is true
     if (isTimerRunning) {
-      intervalId = setInterval(() => {
-        setTimer(prevTimer => prevTimer - 1); // Decrease timer by 1 every second
-      }, 1000);
+      intervalId = setInterval(() => setTimer(prev => prev - 1), 1000);
     } else {
-      clearInterval(intervalId); // Clear the interval when timer is not running
+      clearInterval(intervalId);
     }
-
-    // When timer reaches 0, stop the timer
-    if (timer === 0) {
-      stopTimer();
-    }
-
-    // Clean up function to clear interval when component unmounts
+    if (timer === 0) stopTimer();
     return () => clearInterval(intervalId);
-  }, [timer, isTimerRunning]);
+  }, [isTimerRunning, timer]);
 
-  const handleResendOTP = () => {
-    startTimer();
+  const handleResendOtp = () => startTimer();
+
+  // Validate input fields
+  const validateInput = (text, type) => {
+    const sanitizedText = text.replace(/[^0-9]/g, '');
+    if (type === 'phone') setPhoneNumber(sanitizedText);
+    else setOtp(sanitizedText);
+
+    setIsValid(
+      (type === 'phone' && sanitizedText.length === 10) ||
+        (type === 'otp' && sanitizedText.length === 6),
+    );
   };
 
-  // verification code (OTP - One-Time-Passcode)
-  const [code, setCode] = useState('');
+  // Handle OTP Input
+  const handleOtpChange = (index, value) => {
+    if (!/^\d+$/.test(value) && value !== '') return;
 
-  const checkAuthentication = async () => {
-    setLoading(true);
-    let payload = {phone: phone};
-    try {
-      const data = await post(payload, 'userLogin');
-      if (data) {
-        if (data.isRegistered) {
-          setLoading(false);
-          setAuthenticated(data.id);
-          setUserLocally(data.id);
-          setGlobalData('userId', data.id);
-        } else {
-          navigation.replace('Register', {phone: phone});
-        }
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log('checkAuthentication error', error);
-    }
-  };
-
-  // Set local storage
-  const setAuthenticated = async id => {
-    try {
-      await AsyncStorage.setItem('isLoggedIn', 'true');
-      await AsyncStorage.setItem('userId', id.toString());
-      console.log('Data saved successfully!');
-    } catch (error) {
-      console.log('Error saving data:', error);
-    }
-  };
-
-  const setUserLocally = async id => {
-    const queryParameter = '?userId=' + id.toString();
-    try {
-      const data = await get('getUser', queryParameter);
-      if (data) {
-        try {
-          console.log('Fetched Data ==>', data);
-          await AsyncStorage.setItem('userData', JSON.stringify(data));
-          setGlobalData('userData', data);
-          navigation.replace('Home');
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Creating OTP
-
-  const [otp, setOtp] = useState(845398);
-  function generateOTP(phoneNumber) {
-    const randomOtp = Math.floor(100000 + Math.random() * 900000);
-    setOtp(prev => {
-      signInWithPhoneNumber(phoneNumber, randomOtp);
-      handleResendOTP();
-      return randomOtp;
-    });
-  }
-
-  async function signInWithPhoneNumber(phoneNumber, newOtp) {
-    try {
-      setCode('');
-      setLoading(true);
-      setEnteredOtp(['', '', '', '', '', '']);
-
-      // const response = await fetch(
-      //   `https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_API}&route=otp&variables_values=` +
-      //     newOtp +
-      //     '&route=otp&numbers=' +
-      //     phoneNumber,
-      // ); // Replace with your API endpoint
-      if (true) {
-        setLoading(false);
-        setConfirm(true);
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  }
-  async function confirmCode() {
-    setLoading(true);
-    if (code == otp || code == '111111') {
-      checkAuthentication();
-    } else {
-      console.log('Invalid Code');
-      setLoading(false);
-      onToggleSnackBar();
-    }
-  }
-
-  const validateInputs = (text, type) => {
-    if (type == 'phone') {
-      setPhone(() => {
-        return text.replace(/[^0-9]/g, '');
-      });
-    } else {
-      setCode(() => {
-        return text.replace(/[^0-9]/g, '');
-      });
-    }
-
-    if (
-      (type == 'phone' && text.length == 10) ||
-      (type == 'otp' && text.length == 6)
-    ) {
-      setValid(true);
-    } else {
-      setValid(false);
-    }
-  };
-
-  // Handle OTP entering starts
-
-  const [enteredOtp, setEnteredOtp] = useState(['', '', '', '', '', '']);
-  const [error, setError] = useState(false);
-  const otpInputs = Array.from({length: 6});
-
-  const inputRefs = otpInputs.map(() => useRef(null));
-
-  useEffect(() => {
-    if (code.length === 6) {
-      confirmCode();
-    }
-  }, [code]);
-
-  const handleInputChange = (index, value) => {
-    if (!/^\d+$/.test(value) && value !== '') {
-      return;
-    }
     setError(false);
-    if (value.length === 1 && index < 5) {
-      inputRefs[index + 1].current.focus();
-    }
+    if (value.length === 1 && index < 5) inputRefs[index + 1].current.focus();
 
     const newOtp = [...enteredOtp];
     newOtp[index] = value;
@@ -222,11 +95,11 @@ const Login = ({navigation}) => {
 
     if (index === 5 && newOtp.every(digit => digit !== '')) {
       const fullOtp = newOtp.join('');
-      setCode(fullOtp);
+      setEnteredOtp(fullOtp);
     }
   };
 
-  const handleBackspace = (index, key) => {
+  const handleOtpBackspace = (index, key) => {
     if (key === 'Backspace' && enteredOtp[index] === '' && index > 0) {
       const newOtp = [...enteredOtp];
       newOtp[index - 1] = '';
@@ -235,43 +108,140 @@ const Login = ({navigation}) => {
     }
   };
 
-  // Handle OTP entering ends
+  // OTP Generation
+  const generateOtp = phone => {
+    const newOtp = Math.floor(100000 + Math.random() * 900000);
 
+    setOtp(() => {
+      sendOtpToPhone(phone, newOtp);
+      handleResendOtp();
+      return newOtp;
+    });
+  };
+
+  const sendOtpToPhone = async (phone, generatedOtp) => {
+    const apiUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_API}&route=otp&variables_values=${generatedOtp}&route=otp&numbers=${phone}`;
+    try {
+      setEnteredOtp(['', '', '', '', '', '']);
+      setIsLoading(true);
+      // Uncomment to send actual request
+      await fetch(apiUrl);
+      setIsConfirm(true);
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // OTP Confirmation
+  useEffect(() => {
+    if (enteredOtp[5].length) {
+      confirmOtpCode();
+    }
+  }, [enteredOtp]);
+
+  const confirmOtpCode = async () => {
+    const completeEnteredOtp = parseInt(enteredOtp);
+    setIsLoading(true);
+    if (otp === '111111' || otp === completeEnteredOtp) {
+      await authenticateUser();
+    } else {
+      setIsLoading(false);
+      toggleSnackbar();
+      console.warn('Invalid OTP');
+    }
+  };
+
+  // User Authentication
+  const authenticateUser = async () => {
+    setIsLoading(true);
+    const payload = {phone: phone};
+    try {
+      const response = await post(payload, 'userLogin');
+      if (response) {
+        if (response.isRegistered) {
+          await saveUserIdLocally(response.id);
+          await fetchAndSetUserData(response.id);
+          setIsLoading(false);
+        } else {
+          navigation.replace('Register', {phone: phone});
+        }
+      } else {
+        console.warn('No response received during authentication');
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveUserIdLocally = async userId => {
+    try {
+      await AsyncStorage.setItem(UserEnum.USER_ID, userId.toString());
+      console.log('User ID saved locally');
+    } catch (error) {
+      console.error('Error saving User ID locally:', error);
+    }
+  };
+
+  const fetchAndSetUserData = async userId => {
+    const queryParameter = `?userId=${userId}`;
+    try {
+      const userData = await get('getUser', queryParameter);
+      if (userData) {
+        setGlobalData(UserEnum.USER_DATA, userData);
+        navigation.replace('Home');
+        console.log('User data fetched and set globally');
+      } else {
+        console.warn('No user data received');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  // Back Press Handler
   const handleBackPress = () => {
-    if (confirm) {
-      setValid(true);
-      setConfirm(!confirm);
+    if (isConfirm) {
+      setIsConfirm(false);
+      setIsValid(true);
     }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <>
-        <Appbar.Header style={{backgroundColor: theme.bgLight}}>
-          <Appbar.BackAction
-            size={20}
-            color={theme.bgDark}
-            onPress={handleBackPress}
-          />
-          <Appbar.Content
-            title="Back"
-            titleStyle={[fontStyles.fnt16Medium, {color: theme.textPrimary}]}
-          />
-        </Appbar.Header>
+        {isConfirm && (
+          <Appbar.Header style={{backgroundColor: theme.bgLight}}>
+            <Appbar.BackAction
+              size={20}
+              color={theme.bgDark}
+              onPress={handleBackPress}
+            />
+            <Appbar.Content
+              title="Back"
+              titleStyle={[fontStyles.fnt16Medium, {color: theme.textPrimary}]}
+            />
+          </Appbar.Header>
+        )}
         <View
           style={[
-            commonStyles.mainContainer,
+            commonStyles.flex1,
             commonStyles.p16,
             {backgroundColor: theme.bgLight},
           ]}>
-          {loading && <AppLoader />}
-          {!confirm && (
+          {isLoading && <AppLoader />}
+          {!isConfirm && (
             <View style={{flex: 1, justifyContent: 'space-between'}}>
               <View>
                 <Text
                   style={[
                     fontStyles.fnt24Medium,
-                    {color: theme.textPrimary, marginBottom: 10},
+                    commonStyles.mb10,
+                    commonStyles.pt40,
+                    {color: theme.textPrimary},
                   ]}>
                   Sign in
                 </Text>
@@ -294,8 +264,8 @@ const Login = ({navigation}) => {
                     </Text>
                   </View>
                   <AppTextInput
-                    style={[fontStyles.fnt16Medium, {flex: 1}]}
-                    onChangeText={text => validateInputs(text, 'phone')}
+                    style={[fontStyles.fnt16Medium, commonStyles.flex1]}
+                    onChangeText={text => validateInput(text, 'phone')}
                     value={phone}
                     maxLength={10}
                     minLength={10}
@@ -306,10 +276,10 @@ const Login = ({navigation}) => {
                 </View>
               </View>
               <TouchableOpacity
-                disabled={!valid}
-                onPress={() => generateOTP(phone) && handleResendOTP()}
+                disabled={!isValid}
+                onPress={() => generateOtp(phone) && handleResendOtp()}
                 style={[
-                  valid ? commonStyles.btnPrimary : commonStyles.btnDisabled,
+                  isValid ? commonStyles.btnPrimary : commonStyles.btnDisabled,
                 ]}>
                 <Text
                   style={[
@@ -323,7 +293,7 @@ const Login = ({navigation}) => {
             </View>
           )}
 
-          {confirm && (
+          {isConfirm && (
             <View style={{flex: 1, justifyContent: 'space-between'}}>
               <View style={commonStyles.columnCenter}>
                 <Text style={[fontStyles.fnt24Medium, commonStyles.mb10]}>
@@ -331,10 +301,9 @@ const Login = ({navigation}) => {
                   Phone verification{' '}
                 </Text>
                 <Text style={[fontStyles.fnt16Regular, commonStyles.textInfo]}>
-                  Enter your OTP code
+                  Enter the OTP sent to {phone}
                 </Text>
-                <View
-                  style={[style.editPhone, commonStyles.columnCenter]}></View>
+                <View style={[style.editPhone, commonStyles.columnCenter]} />
                 <View style={style.otpContainer}>
                   {otpInputs.map((_, index) => (
                     <TextInput
@@ -346,9 +315,9 @@ const Login = ({navigation}) => {
                         enteredOtp[index] && style.otpInputFilled,
                       ]}
                       value={enteredOtp[index]}
-                      onChangeText={value => handleInputChange(index, value)}
+                      onChangeText={value => handleOtpChange(index, value)}
                       onKeyPress={({nativeEvent}) =>
-                        handleBackspace(index, nativeEvent.key)
+                        handleOtpBackspace(index, nativeEvent.key)
                       }
                       keyboardType="number-pad"
                       maxLength={1}
@@ -356,8 +325,8 @@ const Login = ({navigation}) => {
                   ))}
                 </View>
 
-                {timer != 0 ? (
-                  <View style={{paddingTop: 20}}>
+                {timer !== 0 ? (
+                  <View style={commonStyles.pt20}>
                     <Text style={[fontStyles.fnt14Medium]}>
                       Resend OTP in {timer} sec
                     </Text>
@@ -365,10 +334,10 @@ const Login = ({navigation}) => {
                 ) : (
                   <TouchableOpacity
                     onPress={() => {
-                      generateOTP(phone);
+                      generateOtp(phone);
                     }}
-                    style={{paddingTop: 20}}>
-                    <View style={{flexDirection: 'row'}}>
+                    style={commonStyles.pt20}>
+                    <View style={commonStyles.rowFlex}>
                       <Text style={fontStyles.fnt14Medium}>
                         Didn’t receive code?{' '}
                       </Text>
@@ -385,18 +354,13 @@ const Login = ({navigation}) => {
               </View>
 
               <TouchableOpacity
-                disabled={!valid}
-                onPress={() => confirmCode()}
-                style={
-                  code.length == 6
-                    ? commonStyles.btnPrimary
-                    : commonStyles.btnDisabled
-                }>
+                onPress={() => confirmOtpCode()}
+                style={commonStyles.btnPrimary}>
                 <Text
                   style={[
                     fontStyles.fnt16Medium,
                     commonStyles.textCenter,
-                    theme.bgLight,
+                    {color: theme.white},
                   ]}>
                   Verify
                 </Text>
@@ -410,9 +374,9 @@ const Login = ({navigation}) => {
               width: '100%',
               marginHorizontal: 20,
             }}
-            visible={visible}
+            visible={snackbarVisible}
             duration={2000}
-            onDismiss={onDismissSnackBar}
+            onDismiss={dismissSnackbar}
             action={{
               label: 'OK',
               labelStyle: {color: '#fff'},

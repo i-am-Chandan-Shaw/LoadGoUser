@@ -1,199 +1,198 @@
 // commonStyles.js
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 import Colors from './Colors';
 import FontSize from './FontSize';
 
 const commonStyles = StyleSheet.create({
+  // Button Css Starts
+  btnPrimary: {
+    padding: 15,
+    backgroundColor: Colors.bgPrimary,
+    borderRadius: 8,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  btnOutline: {
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: Colors.bgLight,
+    borderColor: Colors.bgPrimary,
+    width: '100%',
+  },
 
-    // Button Css Starts
-    btnPrimary: {
-        padding: 15,
-        backgroundColor: Colors.bgPrimary,
-        borderRadius: 8,
-        width: '100%',
-        flexDirection:'row',
-        justifyContent:'center'
-    },
-    btnOutline: {
-        padding: 15,
-        borderRadius: 8,
-        backgroundColor: Colors.bgLight,
-        borderColor: Colors.bgPrimary,
-        width: '100%'
-    },
+  btnDisabled: {
+    padding: 15,
+    backgroundColor: Colors.bgPrimary,
+    borderRadius: 8,
+    opacity: 0.5,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  // Button Css Ends
 
-    btnDisabled: {
-        padding: 15,
-        backgroundColor: Colors.bgPrimary,
-        borderRadius: 8,
-        opacity: 0.5,
-        width: '100%',
-        flexDirection:'row',
-        justifyContent:'center'
-    },
-    // Button Css Ends
+  w50: {
+    width: '50%',
+  },
+  w100p: {
+    width: '100%',
+  },
 
+  // Fonts starts
 
-    w50: {
-        width: '50%'
-    },
-    w100p: {
-        width: '100%'
-    },
+  fnt12Regular: {
+    fontSize: FontSize.xSmall,
+    fontFamily: 'Poppins',
+    color: '#000',
+    lineHeight: 18,
+  },
 
-    // Fonts starts
+  fnt16Regular: {
+    fontSize: FontSize.medium,
+    fontFamily: 'Poppins',
+    color: '#000',
+    lineHeight: 24,
+  },
+  fnt14Medium: {
+    fontSize: FontSize.small,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#000',
+    lineHeight: 23,
+  },
 
-    fnt12Regular:{
-        fontSize: FontSize.xSmall,
-        fontFamily: 'Poppins',
-        color: '#000',
-        lineHeight: 18
-    },
+  fnt16Medium: {
+    fontSize: FontSize.medium,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#000',
+    lineHeight: 23,
+  },
 
-    fnt16Regular: {
-        fontSize: FontSize.medium,
-        fontFamily: 'Poppins',
-        color: '#000',
-        lineHeight: 24
-    },
-    fnt14Medium: {
-        fontSize: FontSize.small,
-        fontFamily: 'Poppins-SemiBold',
-        color: '#000',
-        lineHeight: 23
-    },
+  fnt24Medium: {
+    fontSize: FontSize.xLarge,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#000',
+    lineHeight: 30,
+  },
+  fnt24Bold: {
+    fontSize: FontSize.xLarge,
+    fontFamily: 'Poppins-Bold',
+    color: '#000',
+    lineHeight: 30,
+  },
 
+  // Fonts ends
+  textCenter: {
+    textAlign: 'center',
+  },
+  textWhite: {
+    color: Colors.bgLight,
+  },
+  textPrimary: {
+    color: Colors.textPrimary,
+  },
+  textSecondary: {
+    color: Colors.textSecondary,
+  },
+  textTertiary: {
+    color: Colors.textTertiary,
+  },
+  textDisabled: {
+    color: Colors.textDisabled,
+  },
+  textInfo: {
+    color: Colors.textInfo,
+  },
 
-    fnt16Medium: {
-        fontSize: FontSize.medium,
-        fontFamily: 'Poppins-SemiBold',
-        color: '#000',
-        lineHeight: 23
-    },
+  // Spacing and Margin starts
 
-   
-    fnt24Medium: {
-        fontSize: FontSize.xLarge,
-        fontFamily: 'Poppins-SemiBold',
-        color: '#000',
-        lineHeight: 30
-    },
-    fnt24Bold: {
-        fontSize: FontSize.xLarge,
-        fontFamily: 'Poppins-Bold',
-        color: '#000',
-        lineHeight: 30
-    },
-    
+  p16: {
+    padding: 16,
+  },
+  px30: {
+    paddingStart: 30,
+    paddingEnd: 30,
+  },
 
-    // Fonts ends
-    textCenter: {
-        textAlign: 'center'
-    },
-    textWhite: {
-        color: Colors.bgLight
-    },
-    textPrimary: {
-        color: Colors.textPrimary
-    },
-    textSecondary: {
-        color: Colors.textSecondary
-    },
-    textTertiary: {
-        color: Colors.textTertiary
-    },
-    textDisabled: {
-        color: Colors.textDisabled
-    },
-    textInfo: {
-        color: Colors.textInfo
-    },
+  py30: {
+    paddingTop: 30,
+    paddingBottom: 30,
+  },
+  pt20: {
+    paddingTop: 20,
+  },
+  pt40: {
+    paddingTop: 40,
+  },
+  pb40: {
+    paddingBottom: 40,
+  },
+  pb12: {
+    paddingBottom: 12,
+  },
 
+  // Margin
 
-    // Spacing and Margin starts
+  mt10: {
+    marginTop: 10,
+  },
+  mt12: {
+    marginTop: 12,
+  },
+  mt16: {
+    marginTop: 16,
+  },
+  mt30: {
+    marginTop: 30,
+  },
+  mt100: {
+    marginTop: 100,
+  },
+  mt24: {
+    marginTop: 24,
+  },
 
+  mb10: {
+    marginBottom: 10,
+  },
+  mb12: {
+    marginBottom: 12,
+  },
+  mb16: {
+    marginBottom: 16,
+  },
+  mb30: {
+    marginBottom: 30,
+  },
+  mb24: {
+    marginBottom: 24,
+  },
 
-    p16: {
-        padding: 16
-    },
-    px30: {
-        paddingStart: 30,
-        paddingEnd: 30
-    },
+  // Spacing and Margin ends;
 
-    py30: {
-        paddingTop: 30,
-        paddingBottom: 30
-    },
-    pt40: {
-        paddingTop: 40
-    },
-    pb40: {
-        paddingBottom: 40
-    },
-    pb12: {
-        paddingBottom: 12
-    },
-
-    // Margin
-
-    mt10: {
-        margiTop: 10
-    },
-    mt12: {
-        margiTop: 12
-    },
-    mt16: {
-        margiTop: 16
-    },
-    mt30: {
-        margiTop: 30
-    },
-    mt24: {
-        margiTop: 24
-    },
-
-    mb10: {
-        marginBottom: 10
-    },
-    mb12: {
-        marginBottom: 12
-    },
-    mb16: {
-        marginBottom: 16
-    },
-    mb30: {
-        marginBottom: 30
-    },
-    mb24: {
-        marginBottom: 24
-    },
-
-    // Spacing and Margin ends;
-
-    flexCenter: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent:'center',
-        flex: 1
-    },
-    rowFlex: {
-        flexDirection: 'row'
-    },
-    rowCenter: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    columnCenter: {
-        alignItems: 'center'
-    },
-
-
-    mainContainer: {
-        backgroundColor: Colors.bgLight,
-        flex: 1
-    }
-
+  flexCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  flex1: {
+    flex: 1,
+  },
+  rowFlex: {
+    flexDirection: 'row',
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  columnCenter: {
+    alignItems: 'center',
+  },
+  flexColumnCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default commonStyles;

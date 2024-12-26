@@ -11,4 +11,5 @@ export default {
   redPin: require('../assets/images/red_pin.png'),
   yellowPin: require('../assets/images/yellow_pin.png'),
   blackPin: require('../assets/images/black_pin.png'),
+  homeScreen: require('../assets/images/duty.png'),
 };

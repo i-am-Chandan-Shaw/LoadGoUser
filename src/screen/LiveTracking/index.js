@@ -1,255 +1,286 @@
-import React, { useState, useRef, useEffect, } from 'react';
-import { View, Dimensions, Text, Pressable, Image, Linking, Platform } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import MapView, { Marker } from 'react-native-maps';
-import { BottomSheetModal, BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet';
+import React, {useState, useRef, useEffect, useContext} from 'react';
+import {
+  View,
+  Dimensions,
+  Text,
+  Pressable,
+  Image,
+  Linking,
+  Platform,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import MapView, {Marker} from 'react-native-maps';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import MapViewDirections from 'react-native-maps-directions';
-import { REACT_APP_MAPS_API } from '@env';
+import {REACT_APP_MAPS_API} from '@env';
 import CustomMarker from '../../core/component/CustomMarker';
 import imagePath from '../../constants/imagePath';
 import style from './style';
-import IonicIcon from 'react-native-vector-icons/Ionicons';
-import { Button } from 'react-native-paper';
+import {} from 'react-native-paper';
 import CurrentTripDetails from '../../core/View/CurrentTripDetails';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { get, patch } from '../../core/helper/services';
-import { getCurrentLocation, locationPermission } from '../../core/helper/helper';
-
+import {useNavigation} from '@react-navigation/native';
+import {get} from '../../core/helper/services';
+import {getInitialRegionForMap} from '../../core/helper/helper';
+import {AppContext} from '../../core/helper/AppContext';
+import {useTheme} from '../../constants/ThemeContext';
+import AppLoader from '../../core/component/AppLoader';
+import {convertMinToHours} from '../../core/helper/commonHelper';
 
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0122;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+const initialRegion = getInitialRegionForMap();
 
+const LiveTracking = props => {
+  const {theme} = useTheme();
+  const navigation = useNavigation();
+  const mapRef = useRef();
+  const markerRef = useRef();
+  const bottomSheetRef = useRef();
 
+  const [currentTrip, setCurrentTrip] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pollingActive, setPollingActive] = useState(false);
+  const [mapData, setMapData] = useState(null);
+  const [locationDetails, setLocationDetails] = useState({
+    driverCoords: null,
+    dropLocation: null,
+    travelDuration: null,
+    distanceLeft: null,
+    hasTripStarted: false,
+    locationType: 'pickup location',
+    locationAddress: 'Pickup Location',
+  });
 
-const LiveTracking = (props) => {
+  const setDriverCoords = driverCoords => {
+    if (driverCoords?.driverLat && driverCoords?.driverLng) {
+      const latitude = parseFloat(driverCoords.driverLat);
+      const longitude = parseFloat(driverCoords.driverLng);
+      animateMarkerMovement(latitude, longitude);
+      setLocationDetails(prevState => ({
+        ...prevState,
+        driverCoords: {
+          latitude,
+          longitude,
+        },
+      }));
+    }
+  };
 
-    const bottomSheetRef = useRef(null)
-    const mapRef = useRef();
-    const markerRef = useRef();
-    const snapPoints = [185];
-    const [tripDetails, setTripDetails] = useState(null);
-    const [mapCoords, setMapCoords] = useState('');
-    const navigation = useNavigation();
-    const [isDetailsLoaded, setIsDetailsLoaded] = useState(false);
-    const [navigationPoints, setNavigationPoints] = useState(null)
+  const initializeMapDirectionPoints = trip => {
+    if (!trip) return;
 
+    const tripStarted = trip.status === '4';
+    const endLat = tripStarted
+      ? parseFloat(trip.dropCoords.dropLat)
+      : parseFloat(trip.pickUpCoords.pickUpLat);
+    const endLng = tripStarted
+      ? parseFloat(trip.dropCoords.dropLng)
+      : parseFloat(trip.pickUpCoords.pickUpLng);
 
+    const updatedLocationType = tripStarted
+      ? 'drop location'
+      : 'pickup location';
 
-    useEffect(() => {
-        bottomSheetRef.current?.present();
-        setTripDetails(props.route.params.details);
-    }, []);
+    const updatedLocationAddress = tripStarted
+      ? currentTrip?.dropLocation
+      : currentTrip?.pickUpLocation;
 
-    useEffect(() => {
-        if (!isDetailsLoaded && tripDetails) {
-            let coords = {
-                "latitude": parseFloat(tripDetails?.driverCoords.driverLat),
-                "longitude": parseFloat(tripDetails?.driverCoords.driverLng),
-                "latitudeDelta": LATITUDE_DELTA,
-                "longitudeDelta": LONGITUDE_DELTA
-            }
-            if (tripDetails.status == 2) {
-                console.log('sas', {
-                    pickupCoords: coords,
-                    dropCoords: tripDetails.pickupCoords
-                });
-                setNavigationPoints({
-                    pickupCoords: coords,
-                    dropCoords: tripDetails.pickupCoords
-                });
-            } else {
-                setNavigationPoints({
-                    pickupCoords: coords,
-                    dropCoords: tripDetails.dropCoords
-                });
-            }
+    setLocationDetails(prevState => ({
+      ...prevState,
+      dropLocation: {
+        latitude: endLat,
+        longitude: endLng,
+      },
+      locationType: updatedLocationType,
+      locationAddress: updatedLocationAddress,
+    }));
+  };
 
-            checkTripStatus(tripDetails.tripId)
-            setIsDetailsLoaded(true)
+  const getTripStatus = async () => {
+    if (!currentTrip) return;
 
+    try {
+      const queryParameter = `?tripId=${currentTrip.tripId}`;
+      const tripData = await get('getRequestVehicle', queryParameter);
+
+      if (tripData?.[0]) {
+        const tripStatus = parseInt(tripData[0].status, 10);
+
+        console.log(tripStatus);
+
+        setCurrentTrip(tripData[0]);
+        setDriverCoords(tripData[0].driverCoords);
+
+        if (tripStatus === 7) {
+          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          Alert.alert('Ride cancelled', 'Ride was cancelled by the driver!', [
+            {text: 'OK', onPress: () => {}},
+          ]);
+          return;
+        } else if (tripStatus === 5) {
+          navigation.replace('Rating', {tripData});
         }
-    }, [tripDetails])
 
-    const cancelRide = () => {
-        changeTripStatus(6)
-    }
-
-
-
-    const checkTripStatus = async (id) => {
-        try {
-            let trip = await getTripStatus(id);
-            if (trip) {
-                if (trip.status == 4) {
-                    let coords = {
-                        "latitude": parseFloat(trip.driverCoords.driverLat),
-                        "longitude": parseFloat(trip.driverCoords.driverLng),
-                        "latitudeDelta": LATITUDE_DELTA,
-                        "longitudeDelta": LONGITUDE_DELTA
-                    }
-                    setNavigationPoints({
-                        pickupCoords: coords,
-                        dropCoords: tripDetails.dropCoords
-                    });
-                }
-                // getLiveLocation()
-                animate(parseFloat(trip.driverCoords.driverLat), parseFloat(trip.driverCoords.driverLng))
-                if (trip.status == 5) {
-                    navigation.navigate('Rating', { tripDetails: trip })
-                }
-                else if (trip.status > 5) {
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'Home' }],
-                    });
-                } else {
-                    setTimeout(() => {
-                        checkTripStatus(id);
-                    }, 4000);
-                }
-            }
-        } catch (error) {
-            console.log(error);
+        if ([2, 4].includes(tripStatus)) {
+          initializeMapDirectionPoints(tripData[0]);
         }
+      }
+    } catch (error) {
+      console.error('Error fetching trip status:', error);
+    }
+  };
+
+  const initializeTrip = async () => {
+    const trip = props.route.params.tripData;
+    if (trip) {
+      setCurrentTrip(trip);
+      setDriverCoords(trip.driverCoords);
+      initializeMapDirectionPoints(trip);
+
+      if (bottomSheetRef.current) {
+        bottomSheetRef.current.present();
+      }
+
+      // Activate polling
+      setPollingActive(true);
+    }
+  };
+
+  useEffect(() => {
+    initializeTrip();
+
+    // Poll for trip status every 3 seconds when pollingActive is true
+    let interval;
+    if (pollingActive) {
+      interval = setInterval(() => {
+        getTripStatus();
+      }, 8000);
     }
 
-    const getTripStatus = async (id) => {
-        const queryParameter = '?tripId=' + id.toString()
-        try {
-            const data = await get('getRequestVehicle', queryParameter);
-            if (data) {
-                return data[0];
-            }
-        } catch (error) {
-            console.log('getTripStatus', error);
-        }
+    return () => {
+      clearInterval(interval);
+      setPollingActive(false); // Stop polling on unmount
+    };
+  }, [pollingActive]);
+
+  const animateMarkerMovement = (latitude, longitude) => {
+    const newCoordinate = {latitude, longitude};
+
+    if (Platform.OS == 'android') {
+      if (markerRef.current) {
+        markerRef.current.animateMarkerToCoordinate(newCoordinate, 5000);
+      }
+    }
+  };
+
+  const onMapReady = responseData => {
+    if (!locationDetails.distanceLeft) {
+      mapRef.current.fitToCoordinates(responseData.coordinates, {
+        edgePadding: {top: 50, right: 50, bottom: 300, left: 50},
+        animated: true,
+      });
     }
 
+    const durationLeft = convertMinToHours(responseData.duration);
+    const distanceLeft = responseData.distance;
 
-    const animate = (latitude, longitude) => {
-        const newCoordinate = { latitude, longitude };
-        if (Platform.OS == 'android') {
-            if (markerRef.current) {
-                markerRef.current.animateMarkerToCoordinate(newCoordinate, 7000)
-            }
-        } else {
-            state.coordinate.timing(newCoordinate).start()
-        }
+    setMapData(responseData);
+
+    setLocationDetails(prevState => ({
+      ...prevState,
+      travelDuration: durationLeft,
+      distanceLeft,
+    }));
+  };
+  const onCenter = () => {
+    if (mapData) {
+      mapRef.current.fitToCoordinates(mapData.coordinates, {
+        edgePadding: {top: 50, right: 50, bottom: 300, left: 50},
+        animated: true,
+      });
     }
+  };
 
-    const onCenter = () => {
-        mapRef.current.fitToCoordinates(mapCoords);
-    }
-
-    const changeTripStatus = async (statusValue) => {
-        // status value 5 for completed
-        // status value 6 for cancelled by user
-        const payload = {
-            id: tripDetails.tripId,
-            status: statusValue.toString()
-        }
-        try {
-            const data = await patch(payload, 'patchRequestVehicle');
-            if (data) {
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Home' }],
-                });
-            }
-        } catch (error) {
-            console.log(error);
-
-        }
-    }
-
-    const goBack = () => {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Home' }],
-        });
-    }
-
-    return (
-        <GestureHandlerRootView>
-            <BottomSheetModalProvider>
-                <View style={style.container}>
-                    <View style={style.header}>
-                        <TouchableOpacity onPress={goBack}>
-                            <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={cancelRide}>
-                            <Button mode='contained' textColor='#fff' style={{ backgroundColor: '#222' }}>Cancel</Button>
-                        </TouchableOpacity>
-                    </View>
-                    <MapView ref={mapRef} style={style.mapContainer}
-                        initialRegion={{
-                            latitude: 22.5629,
-                            longitude: 88.3962,
-                            latitudeDelta: LATITUDE_DELTA,
-                            longitudeDelta: LONGITUDE_DELTA,
-                        }}
-                        toolbarEnabled={false}
-                        loadingEnabled={false}
-                        showsUserLocation={false}
-                        mapType={'terrain'}
-                        showsMyLocationButton={false} >
-
-                        <Marker
-                            coordinate={navigationPoints?.dropCoords}>
-                            <CustomMarker
-                                headerText={''}
-                                text={tripDetails?.drop}
-                                imgSrc={imagePath.dropMarker} />
-                        </Marker>
-
-                        <Marker.Animated ref={markerRef}
-                            coordinate={navigationPoints?.pickupCoords}>
-                            <CustomMarker
-                                headerText={''}
-                                text={null}
-                                imgSrc={imagePath.driverLoc} />
-                        </Marker.Animated>
-
-
-                        <MapViewDirections
-                            origin={navigationPoints?.pickupCoords}
-                            destination={navigationPoints?.dropCoords}
-                            apikey={GOOGLE_MAPS_API_KEY}
-                            strokeWidth={3}
-                            strokeColor='#666'
-                            optimizeWaypoints={true}
-                            onReady={result => {
-                                mapRef.current.fitToCoordinates(result.coordinates, {
-                                    edgePadding: { top: 50, right: 10, bottom: 10, left: 50 },
-                                });
-                                setMapCoords(result.coordinates)
-                            }}
-                        />
-
-                    </MapView>
-                    <View style={style.bottomContainer}>
-                        <TouchableOpacity onPress={onCenter} style={style.onCenterContainer}  >
-                            <Image source={imagePath.liveLocationBtn} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <BottomSheetModal
-                        ref={bottomSheetRef}
-                        index={0}
-                        enablePanDownToClose={false}
-                        backgroundStyle={{ borderRadius: 20, borderWidth: 1, borderColor: '#d6d6d6', elevation: 20 }}
-                        snapPoints={snapPoints}>
-                        <View style={style.bottomSheetPopup}>
-                            <CurrentTripDetails data={tripDetails} />
-                        </View>
-                    </BottomSheetModal>
+  return (
+    <GestureHandlerRootView>
+      <BottomSheetModalProvider>
+        {isLoading && <AppLoader />}
+        <TouchableOpacity
+          style={style.showLocationContainer}
+          onPress={onCenter}>
+          <Image source={imagePath.liveLocationBtn} />
+        </TouchableOpacity>
+        <MapView
+          ref={mapRef}
+          style={style.mapContainer}
+          initialRegion={initialRegion}
+          toolbarEnabled={true}
+          loadingEnabled={false}
+          showsUserLocation={true}
+          mapType={'standard'}
+          showsMyLocationButton={false}>
+          {locationDetails.dropLocation && (
+            <>
+              <Marker.Animated
+                ref={markerRef}
+                coordinate={locationDetails.driverCoords}>
+                <View style={style.vehicleImageContainer}>
+                  <Image
+                    source={require('../../assets/images/tata-ace.png')}
+                    style={style.vehicleImage}
+                  />
                 </View>
-            </BottomSheetModalProvider>
-        </GestureHandlerRootView>
-    )
-}
+              </Marker.Animated>
+              <Marker coordinate={locationDetails.dropLocation}>
+                <CustomMarker
+                  headerText={locationDetails.locationAddress}
+                  imgSrc={imagePath.dropMarker}
+                />
+              </Marker>
+            </>
+          )}
+
+          {locationDetails.dropLocation && (
+            <MapViewDirections
+              origin={locationDetails.driverCoords}
+              destination={locationDetails.dropLocation}
+              apikey={GOOGLE_MAPS_API_KEY}
+              strokeWidth={3}
+              strokeColor={theme.bgPrimary}
+              optimizeWaypoints={true}
+              onReady={result => {
+                onMapReady(result);
+              }}
+            />
+          )}
+        </MapView>
+        <BottomSheetModal
+          ref={bottomSheetRef}
+          index={0}
+          enablePanDownToClose={false}
+          enableContentPanningGesture={false}
+          backgroundStyle={{
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: '#d6d6d6',
+            elevation: 20,
+          }}
+          snapPoints={[320, 500]}>
+          <View>
+            <CurrentTripDetails
+              tripData={currentTrip}
+              locationDetails={locationDetails}
+            />
+          </View>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
+  );
+};
 
 export default LiveTracking;

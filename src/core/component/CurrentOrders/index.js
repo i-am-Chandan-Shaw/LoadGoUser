@@ -7,71 +7,75 @@ import FAIcons from 'react-native-vector-icons/FontAwesome';
 import {Avatar} from 'react-native-paper';
 import AppDivider from '../AppDivider';
 import {useNavigation} from '@react-navigation/native';
+import commonStyles from '../../../constants/commonStyle';
+import {getInitials} from '../../helper/commonHelper';
 
-const CurrentOrders = ({data}) => {
+const CurrentOrders = ({data, trackTripStatus}) => {
   const navigation = useNavigation();
   const trackStatus = () => {
-    console.log(data);
-    navigation.navigate('LiveTracking', {details: data});
+    navigation.replace('LiveTracking', {tripData: data});
   };
 
   const callDriver = () => {
     Linking.openURL(`tel:${data.driverPhone}`);
   };
   return (
-    <View style={style.mainContainer}>
-      <View style={style.leftContainer}>
-        <View style={style.headerContainer}>
-          <Text style={style.subHeaderText}>
-            {' '}
-            {data?.vehicleNumber} • Tata Ace
-          </Text>
-          <View style={{marginBottom: 2}}>
-            <FeatherIcon name="chevron-right" size={20} />
-          </View>
-          <Text style={style.subHeaderText}> Running</Text>
+    <View style={[commonStyles.p16, commonStyles.gap2]}>
+      <View style={[commonStyles.rowCenter, commonStyles.gap1]}>
+        <Text style={commonStyles.fnt14Medium}>
+          {' '}
+          {data?.vehicleNumber} • Tata Ace
+        </Text>
+        <View style={{marginBottom: 3}}>
+          <FeatherIcon name="chevron-right" size={20} />
         </View>
-        <View style={style.topContainer}>
+        <Text style={commonStyles.fnt14Medium}> Running</Text>
+        <View style={{marginBottom: 3}}>
+          <FeatherIcon name="chevron-right" size={20} />
+        </View>
+        <Text style={[commonStyles.fnt14Medium]}>
+          Rs {Math.floor(data.amount)}
+        </Text>
+      </View>
+      <View>
+        <View style={[commonStyles.rowFlex, commonStyles.gap2]}>
           <View style={style.vehicleContainer}>
             <View style={style.vehicle}>
               <Image style={style.image} source={imagePath.tataAce} />
             </View>
-            <Text style={[style.subHeaderText, {lineHeight: 18}]}>
-              ₹ {Math.floor(data.amount)}{' '}
-            </Text>
           </View>
-          <View>
-            <View style={[style.alignCenter, {marginBottom: 20}]}>
-              <Avatar.Text size={24} label="AK" />
-              <View style={{marginHorizontal: 10}}>
-                <Text style={style.simpleText}> {data?.driverName} </Text>
-              </View>
-              <AppDivider alignment={'vertical'} bgColor={'#ccc'} />
-              <View style={[{marginHorizontal: 20}, style.alignCenter]}>
-                <Text style={style.simpleText}>{data?.driverTotalRating} </Text>
-                <FAIcons name="star" color="#f4c430" size={13} />
-              </View>
+          <View style={commonStyles.flex1}>
+            <View>
+              <Text style={commonStyles.fnt14Regular}>{data?.driverName}</Text>
             </View>
-            <View style={style.bottomContainer}>
-              <Pressable
-                onPress={callDriver}
-                style={[style.alignCenter, {marginRight: 20}]}>
-                <View style={{marginTop: 2, marginRight: 5}}>
-                  <FeatherIcon name="phone-call" size={20} />
-                </View>
-                <Text style={style.simpleSemibold}> Call Driver </Text>
-              </Pressable>
-              <Pressable
-                onPress={trackStatus}
-                style={[style.alignCenter, {marginRight: 20}]}>
-                <View style={{marginTop: 2, marginRight: 5}}>
-                  <FeatherIcon name="send" size={20} />
-                </View>
-                <Text style={style.simpleSemibold}> View Map </Text>
-              </Pressable>
+            <View style={[commonStyles.rowCenter, commonStyles.gap1]}>
+              <Text style={commonStyles.fnt14Regular}>
+                Ratings: {data?.driverTotalRating}
+              </Text>
+              <FAIcons name="star" color="#f4c430" size={12} />
             </View>
+            <View>
+              <Text style={commonStyles.fnt14Regular}>
+                Distance: {data?.distance} Km
+              </Text>
+            </View>
+          </View>
+          <View style={style.bottomContainer}>
+            <Pressable onPress={callDriver} style={[commonStyles.rowCenter]}>
+              <View style={{marginTop: 2, marginRight: 5}}>
+                <FeatherIcon color="#000" name="phone-call" size={16} />
+              </View>
+              <Text style={[commonStyles.fnt14Medium]}> Call Driver </Text>
+            </Pressable>
+            <Pressable onPress={trackStatus} style={[commonStyles.rowCenter]}>
+              <View style={{marginTop: 2, marginRight: 5}}>
+                <FeatherIcon color="#000" name="send" size={16} />
+              </View>
+              <Text style={[commonStyles.fnt14Medium]}> View Map </Text>
+            </Pressable>
           </View>
         </View>
+        <View></View>
       </View>
     </View>
   );

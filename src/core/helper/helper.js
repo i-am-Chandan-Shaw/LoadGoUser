@@ -1,8 +1,12 @@
-import {PermissionsAndroid, Platform} from 'react-native';
+import {Dimensions, Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {REACT_APP_MAPS_API} from '@env';
 
 const GOOGLE_MAPS_API_KEY = REACT_APP_MAPS_API;
+const {width, height} = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.1522;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export const locationPermission = () =>
   new Promise(async (resolve, reject) => {
@@ -78,51 +82,97 @@ export const getAddressFromCoordinates = (latitude, longitude) =>
       });
   });
 
-// Function to get status value by ID
-export function getStatusValueById(id) {
-  let statuses = [
-    {id: 1, value: 'Requested'},
-    {id: 2, value: 'Accepted'},
-    {id: 3, value: 'Revoked'},
-    {id: 4, value: 'Started'},
-    {id: 5, value: 'Completed'},
-    {id: 6, value: 'Cancelled'},
-    {id: 7, value: 'Cancelled'},
-    {id: 8, value: 'Request Timeout'},
-  ];
-
-  for (let status of statuses) {
-    if (status.id === parseInt(id)) {
-      return status.value;
+export const handleLocationPermission = async shouldOpenSettings => {
+  const permissionStatus = await locationPermission(); // Imported or defined elsewhere
+  if (permissionStatus !== 'granted') {
+    if (shouldOpenSettings) {
+      Linking.openSettings();
     }
+    return false;
   }
-  return null; // Return null if the provided ID doesn't match any status
-}
+  return true;
+};
 
-export function convertTo12HourFormat(time24h) {
-  // Splitting the time string into hours, minutes, and seconds
-  let [hours, minutes, seconds] = time24h.split(':').map(Number);
+export const fetchAndPrepareLocationData = async () => {
+  try {
+    const {latitude, longitude} = await getCurrentLocation();
+    if (!latitude || !longitude) {
+      throw new Error('Invalid coordinates');
+    }
 
-  // Determining AM/PM
-  let period = hours < 12 ? 'AM' : 'PM';
+    const currentAddress = await getAddressFromCoordinates(latitude, longitude);
 
-  // Converting to 12-hour format
-  hours = hours % 12 || 12;
+    if (!currentAddress) {
+      throw new Error('Invalid Address');
+    }
 
-  // Formatting the time string
-  let time12h = `${hours.toString().padStart(2, '0')}:${minutes
-    .toString()
-    .padStart(2, '0')} ${period}`;
-
-  return time12h;
-}
-
-export function convertMinToHours(durationInMin) {
-  const hours = Math.floor(durationInMin / 60); // Calculate whole hours
-  const minutes = Math.floor(durationInMin % 60); // Remaining minutes
-
-  if (hours > 0) {
-    return `${hours} hrs ${minutes} mins`;
+    return {
+      coordinates: {
+        latitude,
+        longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      },
+      address: currentAddress,
+    };
+  } catch (error) {
+    console.error('Error in fetching location data:', error);
+    return null;
   }
-  return `${minutes} mins`;
-}
+};
+
+export const getInitialRegionForMap = () => {
+  return {
+    latitude: 22.5629,
+    longitude: 88.3962,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
+  };
+};
+
+export const fetchUserLocationHelper = async (
+  setLocationState,
+  setIsLoading,
+  shouldOpenSettings = false,
+) => {
+  try {
+    // Set initial state for location access
+    setLocationState(prevState => ({
+      ...prevState,
+      locationAccess: false,
+    }));
+
+    setIsLoading(true);
+
+    // Check location permission
+    const hasPermission = await handleLocationPermission(shouldOpenSettings);
+    if (!hasPermission) {
+      return null;
+    }
+
+    // Update state if permission is granted
+    setLocationState(prevState => ({...prevState, locationAccess: true}));
+
+    // Fetch location data
+    const locationData = await fetchAndPrepareLocationData();
+    if (!locationData) {
+      return null;
+    }
+
+    return locationData;
+  } catch (error) {
+    console.error('Error in fetchUserLocationHelper:', error);
+
+    // Update state to reflect no access and optionally open settings
+    setLocationState(prevState => ({
+      ...prevState,
+      locationAccess: false,
+    }));
+    if (shouldOpenSettings) {
+      Linking.openSettings();
+    }
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+};

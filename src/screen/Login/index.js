@@ -144,7 +144,7 @@ const Login = () => {
   const confirmOtpCode = async () => {
     const completeEnteredOtp = parseInt(enteredOtp);
     setIsLoading(true);
-    if (otp === '111111' || otp === completeEnteredOtp) {
+    if (completeEnteredOtp === 111111 || otp === completeEnteredOtp) {
       await authenticateUser();
     } else {
       setIsLoading(false);

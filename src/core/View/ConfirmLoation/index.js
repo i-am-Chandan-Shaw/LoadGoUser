@@ -7,7 +7,7 @@ import FAIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import style from './styles';
 import Colors from '../../../constants/Colors';
 import {useTheme} from '../../../constants/ThemeContext';
-import {convertMinToHours} from '../../helper/helper';
+import {convertMinToHours} from '../../helper/commonHelper';
 
 const ConfirmLocation = ({
   distance,
@@ -70,7 +70,7 @@ const ConfirmLocation = ({
               commonStyles.fnt16Medium,
               {color: theme.white},
             ]}>
-            Verify
+            Confirm Location
           </Text>
         </TouchableOpacity>
       </View>

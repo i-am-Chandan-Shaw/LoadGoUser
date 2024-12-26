@@ -4,7 +4,10 @@ import imagePath from '../../../constants/imagePath';
 import style from './style';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
-import {getStatusValueById, convertTo12HourFormat} from '../../helper/helper';
+import {
+  getStatusValueById,
+  convertTo12HourFormat,
+} from '../../helper/commonHelper';
 
 const RideStatus = ({data}) => {
   useEffect(() => {

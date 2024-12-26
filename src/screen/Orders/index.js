@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Text, Image} from 'react-native';
 import style from './style';
 import CurrentOrders from '../../core/component/CurrentOrders';
@@ -6,94 +6,75 @@ import imagePath from '../../constants/imagePath';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {get} from '../../core/helper/services';
 import AppLoader from '../../core/component/AppLoader';
-import { useTheme } from "../../constants/ThemeContext";
-import useFontStyles from "../../constants/fontStyle";
+import {useTheme} from '../../constants/ThemeContext';
+import useFontStyles from '../../constants/fontStyle';
+import {useNavigation} from '@react-navigation/native';
+import commonStyles from '../../constants/commonStyle';
 
 const Orders = () => {
   const {theme} = useTheme();
-  const fontStyles = useFontStyles();
+  const navigation = useNavigation();
 
-  const [orderData, setOrderData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [tripData, setTripData] = useState(null);
-  const [tripId, setTripId] = useState(null);
-  let tripStatusInterval;
+  const [isLoading, setIsLoading] = useState(false);
+  const intervalRef = useRef(null);
+
   useEffect(() => {
-    fetchTripId();
+    let isMounted = true;
+    fetchTripId(isMounted);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalRef.current);
+    };
   }, []);
 
-  useEffect(() => {
-    tripStatusInterval = setInterval(async () => {
-      try {
-        let trip = await getTripStatus(tripId);
-        if (trip) {
-          setIsLoading(false);
-          if (trip.status == 2 || trip.status == 4) {
-            let data = {
-              ...trip,
-              pickupCoords: {
-                latitude: Number(trip.pickUpCoords.pickUpLat),
-                latitudeDelta: 0.0122,
-                longitude: Number(trip.pickUpCoords.pickUpLng),
-                longitudeDelta: 0.0061627689429373245,
-              },
-              dropCoords: {
-                latitude: Number(trip.dropCoords.dropLat),
-                latitudeDelta: 0.0122,
-                longitude: Number(trip.dropCoords.dropLng),
-                longitudeDelta: 0.0061627689429373245,
-              },
-            };
-            setOrderData(data);
-          } else {
-            clearInterval(tripStatusInterval);
-            setOrderData(null);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }, 3000);
-
-    return () => clearInterval(tripStatusInterval);
-  }, [tripData]);
-
-  const fetchTripId = async () => {
+  const fetchTripId = async isMounted => {
     try {
       setIsLoading(true);
       const value = await AsyncStorage.getItem('tripId');
-      if (value != null) {
-        setTripId(value);
-        let trip = await getTripStatus(value);
-        setTripData(trip);
-      } else {
-        console.log(key, 'Data not found!');
-        setIsLoading(false);
-        return false;
+      if (value) {
+        fetchTripStatus(value, isMounted);
+        startPolling(value, isMounted);
       }
     } catch (error) {
-      console.log('Error retrieving fetchTripId data:', error);
-
+      console.error('Error retrieving trip ID:', error);
+    } finally {
       setIsLoading(false);
-      return false;
     }
   };
 
-  const getTripStatus = async id => {
-    if (id == null) return null;
+  const fetchTripStatus = async (id, isMounted) => {
+    if (!id) return;
 
-    const queryParameter = '?tripId=' + id.toString();
+    const queryParameter = `?tripId=${id}`;
     try {
-      if (tripData == null) setIsLoading(true);
       const data = await get('getRequestVehicle', queryParameter);
       if (data) {
-        return data[0];
+        const status = parseInt(data[0].status, 10);
+        if (isMounted && (status === 2 || status === 4)) {
+          console.log(data[0]);
+
+          setTripData(data[0]);
+        }
       }
     } catch (error) {
-      console.log('getTripStatus', error);
-      clearInterval(tripStatusInterval);
+      console.error('Error fetching trip status:', error);
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const startPolling = (tripId, isMounted) => {
+    clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
+      fetchTripStatus(tripId, isMounted);
+    }, 5000);
+  };
+
+  const openLiveTracking = () => {
+    navigation.replace('LiveTracking', {tripData});
   };
 
   return (
@@ -102,15 +83,17 @@ const Orders = () => {
       <View style={style.headerContainer}>
         <Text style={style.subHeaderText}>Orders</Text>
       </View>
-      {orderData && (
+      {tripData && (
         <View style={style.orderContainer}>
-          <CurrentOrders data={orderData} />
+          <CurrentOrders data={tripData} trackTripStatus={openLiveTracking} />
         </View>
       )}
-      {!orderData && (
+      {!tripData && (
         <View style={style.noDataContainer}>
           <Image source={imagePath.noDataFound} style={style.icon} />
-          <Text style={[{color:theme.bgDark}, fontStyles.fnt16Medium]}>No Active Orders</Text>
+          <Text style={[commonStyles.fnt16Medium, {color: theme.bgDark}]}>
+            No Active Orders
+          </Text>
         </View>
       )}
     </View>

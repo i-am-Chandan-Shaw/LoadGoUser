@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native'
+import {StyleSheet} from 'react-native';
+import {lightTheme} from '../../constants/color';
 
 const style = StyleSheet.create({
   container: {
@@ -13,18 +14,18 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     alignSelf: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   header: {
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 20
+    marginBottom: 20,
   },
   starContainer: {
     flexDirection: 'row',
     marginBottom: 40,
-    marginTop:20
+    marginTop: 20,
   },
   star: {
     marginHorizontal: 5,
@@ -52,7 +53,7 @@ const style = StyleSheet.create({
     marginTop: 20,
     elevation: 3,
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
@@ -61,17 +62,17 @@ const style = StyleSheet.create({
   },
   mediumText: {
     fontSize: 18,
-    color: '#000'
+    color: '#000',
   },
   boldText: {
     fontSize: 18,
     color: '#000',
-    fontWeight: 600
+    fontWeight: 600,
   },
   smallText: {
     fontSize: 14,
     color: '#000',
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
   },
   chipContainer: {
     flexDirection: 'row',
@@ -79,7 +80,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
-    marginBottom:10
+    marginBottom: 10,
   },
   chip: {
     paddingVertical: 6,
@@ -89,7 +90,7 @@ const style = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   selectedChip: {
-    backgroundColor: '#B31312',
+    backgroundColor: lightTheme.bgPrimary,
   },
   label: {
     fontSize: 14,

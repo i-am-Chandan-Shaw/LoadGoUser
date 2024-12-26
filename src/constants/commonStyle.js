@@ -2,6 +2,7 @@
 import {StyleSheet} from 'react-native';
 import Colors from './Colors';
 import FontSize from './FontSize';
+import {lightTheme} from './color';
 
 const commonStyles = StyleSheet.create({
   // Button Css Starts
@@ -20,6 +21,24 @@ const commonStyles = StyleSheet.create({
     borderColor: Colors.bgPrimary,
     width: '100%',
   },
+  btnDanger: {
+    padding: 15,
+    backgroundColor: lightTheme.danger,
+    borderRadius: 8,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnSuccess: {
+    padding: 15,
+    backgroundColor: lightTheme.success,
+    borderRadius: 8,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
   btnDisabled: {
     padding: 15,
@@ -30,7 +49,21 @@ const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+
   // Button Css Ends
+
+  inputPlaceholder: {
+    flex: 1,
+    maxWidth: '100%',
+    backgroundColor: '#f8f8f8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#CCC',
+  },
 
   w50: {
     width: '50%',
@@ -40,7 +73,18 @@ const commonStyles = StyleSheet.create({
   },
 
   // Fonts starts
+  fnt10Regular: {
+    fontSize: 10,
+    fontFamily: 'Poppins',
+    color: '#000',
+    lineHeight: 16,
+  },
 
+  fnt12Medium: {
+    fontSize: FontSize.xSmall,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#000',
+  },
   fnt12Regular: {
     fontSize: FontSize.xSmall,
     fontFamily: 'Poppins',
@@ -54,6 +98,14 @@ const commonStyles = StyleSheet.create({
     color: '#000',
     lineHeight: 24,
   },
+
+  fnt14Regular: {
+    fontSize: FontSize.small,
+    fontFamily: 'Poppins',
+    color: '#000',
+    lineHeight: 24,
+  },
+  
   fnt14Medium: {
     fontSize: FontSize.small,
     fontFamily: 'Poppins-SemiBold',
@@ -188,6 +240,18 @@ const commonStyles = StyleSheet.create({
   },
   columnCenter: {
     alignItems: 'center',
+  },
+  justifyBetween: {
+    justifyContent: 'space-between',
+  },
+  gap1: {
+    gap: 4,
+  },
+  gap2: {
+    gap: 8,
+  },
+  gap4: {
+    gap: 16,
   },
   flexColumnCenter: {
     alignItems: 'center',

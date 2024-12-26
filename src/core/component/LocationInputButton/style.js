@@ -11,21 +11,20 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   inputContainer: {
-    marginTop: 10,
-    position: 'absolute',
-    top: 0,
-    width: '95%',
-    backgroundColor: '#fff',
+    width: '100%',
+    backgroundColor: '#f8f8f8',
     flexDirection: 'row',
     alignItems: 'center',
     height: 50,
-    borderRadius: 4,
+    borderRadius: 8,
     paddingHorizontal: 10,
-    elevation: 10,
+    borderWidth: 1,
+    borderColor: '#CCC',
   },
   textStyle: {
     paddingStart: 10,
     fontSize: 12,
+    maxWidth: '98%',
   },
 });
 

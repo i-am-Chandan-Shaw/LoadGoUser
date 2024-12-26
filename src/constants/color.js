@@ -22,6 +22,8 @@ const lightTheme = {
   borderColor: '#B8B8B8',
   borderWithOpacity: '#1f41bb',
   btnText: '#000000',
+  success: '#4CAF51',
+  danger: '#EF5350',
 };
 
 // Dark Theme Colors
@@ -47,6 +49,8 @@ const darkTheme = {
   borderColor: '#B8B8B8',
   btnText: '#FFFFFF',
   borderWithOpacity: 'rgba(31, 65, 187, 0.5)',
+  success: '#4CAF51',
+  danger: '#EF5350',
 };
 
 export {lightTheme, darkTheme};

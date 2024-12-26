@@ -1,6 +1,5 @@
 import React from 'react';
 import {Image, Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import {Button} from 'react-native-paper';
 import {useTheme} from '../../constants/ThemeContext';
 import imagePath from '../../constants/imagePath';
 import useFontStyles from '../../constants/fontStyle';

@@ -42,6 +42,7 @@ const BookingScreen = props => {
   const [discount, setDiscount] = useState(0);
   const markerArr = [];
   let receiverData = props.route.params.receiverDetails;
+
   const [currentTripId, setCurrentTripId] = useState(null);
   const [navigationData, setNavigationData] = useState({
     distance: null,
@@ -110,13 +111,13 @@ const BookingScreen = props => {
   // }
 
   const goBack = () => {
-    if (currentTripId != null) deleteRequest(currentTripId.tripId);
+    if (currentTripId !== null) deleteRequest(currentTripId.tripId);
     setScreenType('chooseVehicle');
     props.navigation.goBack();
   };
 
   const goHome = () => {
-    if (currentTripId != null) deleteRequest(currentTripId.tripId);
+    if (currentTripId !== null) deleteRequest(currentTripId.tripId);
     navigation.reset({
       index: 0,
       routes: [{name: 'Home'}],
@@ -313,7 +314,7 @@ const BookingScreen = props => {
         <View style={style.container}>
           <View style={style.header}>
             <TouchableOpacity onPress={goBack}>
-              <IonicIcon name="arrow-back-circle" size={40} color={'#222'} />
+              <IonicIcon name="arrow-back-circle" size={20} color={'red'} />
             </TouchableOpacity>
             <TouchableOpacity onPress={goHome}>
               <Button
@@ -408,7 +409,7 @@ const BookingScreen = props => {
               </Snackbar>
             </View>
             <View style={style.bottomSheetPopup}>
-              {screenType == 'chooseVehicle' && (
+              {screenType === 'chooseVehicle' && (
                 <ChooseVehicle
                   discountReceived={getDiscount}
                   receiverData={receiverData}
@@ -421,8 +422,11 @@ const BookingScreen = props => {
                   amount={state.amount}
                 />
               )}
-              {screenType == 'bookingProgress' && (
-                <BookingProgress onCancel={cancelRideRequest} />
+              {screenType === 'bookingProgress' && (
+                <BookingProgress
+                  onCancel={cancelRideRequest}
+                  receiverData={receiverData}
+                />
               )}
             </View>
           </BottomSheetModal>

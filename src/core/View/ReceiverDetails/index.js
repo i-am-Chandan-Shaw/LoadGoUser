@@ -1,88 +1,109 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {ScrollView, View, Text, TouchableOpacity} from 'react-native';
 import {TextInput, Checkbox, Button} from 'react-native-paper';
-import style from './style';
+import styles from './style'; // Renamed `style` to `styles` for clarity and convention
 import {AppContext} from '../../helper/AppContext';
 import commonStyles from '../../../constants/commonStyle';
 import {useTheme} from '../../../constants/ThemeContext';
 
-const ReceiverDetails = ({passDetails}) => {
+const ReceiverDetails = ({onSubmit}) => {
   const {theme} = useTheme();
   const {globalData} = useContext(AppContext);
-  const [checked, setChecked] = useState(false);
-  const [receiverData, setReceiverData] = useState({
+
+  const [isSelf, setIsSelf] = useState(true);
+  const [receiverDetails, setReceiverDetails] = useState({
     name: '',
-    phoneNo: '',
+    phone: '',
   });
 
-  const confirmDetails = () => {
-    passDetails(receiverData);
+  const handleConfirm = () => {
+    if (onSubmit) onSubmit(receiverDetails);
   };
 
-  const sendToSelf = () => {
-    setChecked(!checked);
-    let user = globalData.userData[0];
-    if (!checked) {
-      setReceiverData({
-        name: user?.name,
-        phoneNo: user?.phone,
+  const toggleSelfDetails = () => {
+    setIsSelf(prevState => !prevState);
+    if (!isSelf) {
+      const user = globalData.userData?.[0] || {};
+      setReceiverDetails({
+        name: user.name || '',
+        phone: user.phone || '',
       });
     } else {
-      setReceiverData({
+      setReceiverDetails({
         name: '',
-        phoneNo: '',
+        phone: '',
       });
     }
   };
-  let isValid =
-    receiverData.name.length != 0 && receiverData.phoneNo.length != 0;
+
+  useEffect(() => {
+    const user = globalData.userData?.[0] || {};
+    setReceiverDetails({
+      name: user.name || '',
+      phone: user.phone || '',
+    });
+  }, [globalData]);
+
+  const isFormValid =
+    receiverDetails.name.trim() && receiverDetails.phone.trim();
 
   return (
-    <ScrollView style={style.container} keyboardShouldPersistTaps="never">
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="never">
+      {/* Header */}
       <Text style={[commonStyles.fnt16Medium, commonStyles.textCenter]}>
         Receiver Details
       </Text>
+
+      {/* Name Input */}
       <TextInput
         label="Name *"
         outlineColor="#000"
-        color="#000"
-        value={receiverData.name}
-        onChangeText={text => setReceiverData({...receiverData, name: text})}
-        style={style.inputStyle}
+        value={receiverDetails.name}
+        onChangeText={name =>
+          setReceiverDetails(prevState => ({...prevState, name}))
+        }
+        style={styles.inputStyle}
       />
+
+      {/* Phone Number Input */}
       <TextInput
         label="Phone Number *"
         keyboardType="number-pad"
         outlineColor="#000"
         maxLength={10}
-        onChangeText={text =>
-          setReceiverData({
-            ...receiverData,
-            phoneNo: text.replace(/[^0-9]/g, ''),
-          })
+        value={receiverDetails.phone}
+        onChangeText={phone =>
+          setReceiverDetails(prevState => ({
+            ...prevState,
+            phone: phone.replace(/[^0-9]/g, ''), // Ensures only numbers
+          }))
         }
-        value={receiverData.phoneNo}
-        color="#000"
-        style={style.inputStyle}
+        style={styles.inputStyle}
       />
-      <View style={style.selfContainer}>
+
+      {/* Checkbox: Use Self Details */}
+      <View style={styles.selfContainer}>
         <Checkbox
-          status={checked ? 'checked' : 'unchecked'}
-          onPress={sendToSelf}
+          status={isSelf ? 'checked' : 'unchecked'}
+          onPress={toggleSelfDetails}
         />
         <Text>Self</Text>
       </View>
+
+      {/* Confirm Button */}
       <TouchableOpacity
-        disabled={!isValid}
-        onPress={confirmDetails}
-        style={isValid ? commonStyles.btnPrimary : commonStyles.btnDisabled}>
+        disabled={!isFormValid}
+        onPress={handleConfirm}
+        style={
+          isFormValid ? commonStyles.btnPrimary : commonStyles.btnDisabled
+        }>
         <Text
           style={[
             commonStyles.fnt16Medium,
             commonStyles.textCenter,
             {color: theme.white},
           ]}>
-          Confirm Details
+          Save Details
         </Text>
       </TouchableOpacity>
     </ScrollView>

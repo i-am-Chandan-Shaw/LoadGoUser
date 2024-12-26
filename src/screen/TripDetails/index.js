@@ -5,10 +5,7 @@ import imagePath from '../../constants/imagePath';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AppDivider from '../../core/component/AppDivider';
 import {Button} from 'react-native-paper';
-import {
-  convertTo12HourFormat,
-  getStatusValueById,
-} from '../../core/helper/helper';
+import {convertTo12HourFormat} from '../../core/helper/commonHelper';
 const TripDetails = props => {
   const [data, setData] = useState('');
 

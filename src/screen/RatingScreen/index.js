@@ -11,6 +11,8 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import {Avatar} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {patch} from '../../core/helper/services';
+import commonStyles from '../../constants/commonStyle';
+import AppLoader from '../../core/component/AppLoader';
 
 const Chip = ({label, selected, onSelect}) => {
   return (
@@ -28,11 +30,12 @@ const RatingScreen = props => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [tripDetails, setTripDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
-    console.log(props);
-    setTripDetails(props.route.params.tripDetails);
+    console.log(props.route.params.tripData[0]);
+    setTripDetails(props.route.params.tripData[0]);
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       handleBackPress,
@@ -66,7 +69,6 @@ const RatingScreen = props => {
   const chipData = [
     'Overall Service',
     'Delivery',
-    ,
     'Tracking',
     'Costs',
     'Driver Behavior',
@@ -95,7 +97,6 @@ const RatingScreen = props => {
       setIsLoading(true);
       const data = await patch(payload, 'patchRequestVehicle');
       if (data) {
-        setIsLoading(false);
         navigation.reset({
           index: 0,
           routes: [{name: 'Home'}],
@@ -103,12 +104,14 @@ const RatingScreen = props => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <View style={style.container}>
+      {isLoading && <AppLoader />}
       <View style={style.topContainer}>
         <View style={style.header}>
           <Avatar.Icon size={54} icon="account" />
@@ -164,8 +167,17 @@ const RatingScreen = props => {
       </View>
 
       {/* Submit Button */}
-      <TouchableOpacity style={style.button} onPress={handleSubmit}>
-        <Text style={style.buttonText}>Submit Feedback</Text>
+      <TouchableOpacity
+        onPress={handleSubmit}
+        style={[commonStyles.btnPrimary]}>
+        <Text
+          style={[
+            commonStyles.fnt16Medium,
+            commonStyles.textCenter,
+            commonStyles.textWhite,
+          ]}>
+          Submit Feedback
+        </Text>
       </TouchableOpacity>
     </View>
   );

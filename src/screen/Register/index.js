@@ -14,8 +14,6 @@ import {get, post} from '../../core/helper/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppContext} from '../../core/helper/AppContext';
 import AppLoader from '../../core/component/AppLoader';
-import Colors from '../../constants/Colors';
-import FontSize from '../../constants/FontSize';
 import commonStyles from '../../constants/commonStyle';
 import styles from './style';
 import {UserEnum} from '../../constants/enums';

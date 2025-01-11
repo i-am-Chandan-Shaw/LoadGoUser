@@ -29,14 +29,14 @@ const AccountList = ({userData}) => {
   };
 
   const callSupport = () => {
-    Linking.openURL(`tel:${3361218798}`);
+    Linking.openURL(`tel:${8240687723}`);
   };
 
   const onShare = async () => {
     try {
       const result = await Share.share({
         message:
-          'Deliver your goods at the best price, at the fastest time possible. Book your first service at Flat 200 Rs Off..! Visit the link to know more: www.loadgo.in',
+          'Deliver your goods at the best price, at the fastest time possible. Book your first service at Flat 200 Rs Off..! Download Now: https://play.google.com/store/apps/details?id=com.loadgo&pcampaignid=web_share',
       });
       if (result.action === Share.dismissedAction) {
         // Handle dismissal case

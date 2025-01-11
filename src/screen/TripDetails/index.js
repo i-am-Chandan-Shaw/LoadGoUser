@@ -14,7 +14,7 @@ const TripDetails = props => {
   }, [props]);
 
   const callSupport = () => {
-    Linking.openURL(`tel:${3361218798}`);
+    Linking.openURL(`tel:${8240687723}`);
   };
 
   return (

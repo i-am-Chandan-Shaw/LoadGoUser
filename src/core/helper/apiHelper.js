@@ -37,12 +37,7 @@ const getFareDetails = async () => {
 };
 
 export const initializeFareAmount = distance => {
-  const minimumDistanceThreshold = 5;
-  const fallbackFare = 200;
-
-  return distance > minimumDistanceThreshold
-    ? calculateFare(distance)
-    : fallbackFare;
+  return calculateFare(distance);
 };
 
 export const updateDriverPushToken = async (driverId, pushToken) => {

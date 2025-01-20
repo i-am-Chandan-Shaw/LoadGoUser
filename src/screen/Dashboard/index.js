@@ -209,8 +209,12 @@ const Dashboard = () => {
     setOverlaySnapPoints([340]);
     setOverlayModalName('confirmLocation');
     overlayModalRef.current?.present();
+    console.log(mapData.duration);
 
-    const minFare = await initializeFareAmount(mapData.distance);
+    const minFare = await initializeFareAmount(
+      mapData.distance,
+      mapData.duration,
+    );
     setFareDetails(prevState => ({
       ...prevState,
       minFare,

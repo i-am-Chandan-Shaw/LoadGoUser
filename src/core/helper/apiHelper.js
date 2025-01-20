@@ -2,18 +2,14 @@ import {get, patch} from './services';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert, Linking, PermissionsAndroid, Platform} from 'react-native';
-const calculateFare = async totalDistance => {
+const calculateFare = async (totalDistance, totalTime) => {
   const fareData = await getFareDetails();
 
   const baseFare = parseInt(fareData?.baseFare || 0, 10);
   const perKmCharge = parseInt(fareData?.perKm || 0, 10) * totalDistance;
+  const perTimeCharge = parseInt(fareData?.afterAnHour || 0, 10) * totalTime;
 
-  if (isNaN(baseFare) || isNaN(perKmCharge)) {
-    console.warn('Invalid fare data received. Using fallback fare.');
-    return 200;
-  }
-
-  const calculatedFare = baseFare + perKmCharge;
+  const calculatedFare = baseFare + perKmCharge + perTimeCharge;
 
   return Math.ceil(calculatedFare);
 };
@@ -36,8 +32,8 @@ const getFareDetails = async () => {
   }
 };
 
-export const initializeFareAmount = distance => {
-  return calculateFare(distance);
+export const initializeFareAmount = (distance, time) => {
+  return calculateFare(distance, time);
 };
 
 export const updateDriverPushToken = async (driverId, pushToken) => {

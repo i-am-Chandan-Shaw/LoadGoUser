@@ -1,5 +1,5 @@
-import React, {useContext, useEffect} from 'react';
-import {View, Image} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {View, Image, Linking, Pressable, Text} from 'react-native';
 import {locationPermission} from '../../core/helper/helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import commonStyles from '../../constants/commonStyle';
@@ -7,19 +7,51 @@ import {UserEnum} from '../../constants/enums';
 import {get} from '../../core/helper/services';
 import {AppContext} from '../../core/helper/AppContext';
 import {useNavigation} from '@react-navigation/native';
+import {checkAppVersion} from '../../core/helper/apiHelper';
+import AppLoader from '../../core/component/AppLoader';
 
 const SplashScreen = () => {
   const {setGlobalData} = useContext(AppContext);
   const navigation = useNavigation();
+  const [versionDetails, setVersionDetails] = useState({
+    mandatoryUpdate: false,
+  });
 
-  // Initialize the application
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    const timeout = setTimeout(async () => {
-      await initializeApp();
-    }, 1000);
-
-    return () => clearTimeout(timeout); // Cleanup timeout
+    checkVersionValidation();
   }, []);
+
+  const checkVersionValidation = async () => {
+    try {
+      setIsLoading(true);
+      const versionData = await checkAppVersion();
+
+      if (versionData) {
+        setVersionDetails(versionData);
+        // Only initialize if there's no mandatory update
+        if (!versionData.mandatoryUpdate) {
+          await initializeApp();
+        }
+      } else {
+        // If no version data (including error cases), proceed with initialization
+        await initializeApp();
+      }
+    } catch (error) {
+      console.error('Version validation error:', error);
+      // Consider showing an error message to user
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateApp = () => {
+    const url = versionDetails.updateUrl;
+    console.log(url);
+
+    Linking.openURL(url);
+  };
 
   const initializeApp = async () => {
     try {
@@ -83,13 +115,46 @@ const SplashScreen = () => {
   };
 
   return (
-    <View style={[commonStyles.flexCenter]}>
-      <Image
-        style={{width: '40%', height: undefined, aspectRatio: 470 / 347}}
-        source={require('../../assets/images/logo.png')}
-        resizeMode="contain"
-      />
-    </View>
+    <>
+      {isLoading && <AppLoader />}
+      <View
+        style={[
+          commonStyles.columnCenterFit,
+          commonStyles.p16,
+          commonStyles.gap2,
+          {height: '100%'},
+        ]}>
+        <Image
+          style={{width: '40%', height: undefined, aspectRatio: 470 / 347}}
+          source={require('../../assets/images/logo.png')}
+          resizeMode="contain"
+        />
+        {versionDetails?.mandatoryUpdate && (
+          <View
+            style={[
+              commonStyles.mt24,
+              commonStyles.columnCenter,
+              commonStyles.gap4,
+            ]}>
+            <Text style={[commonStyles.fnt12Regular, {textAlign: 'center'}]}>
+              The version is outdated, please update to use the app
+            </Text>
+            <Pressable
+              onPressIn={updateApp}
+              style={[commonStyles.btnSuccess, {width: 150}]}>
+              <Text
+                style={[
+                  commonStyles.fnt16Medium,
+                  commonStyles.textCenter,
+                  commonStyles.textWhite,
+                ]}>
+                Update App
+              </Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+    </>
   );
 };
 

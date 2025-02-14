@@ -3,16 +3,45 @@ import React, {useState} from 'react';
 import FontSize from '../../../constants/FontSize';
 import {useTheme} from '../../../constants/ThemeContext';
 
-const AppTextInput = ({style, type, height, ...otherProps}) => {
+const AppTextInput = ({
+  style,
+  type,
+  height,
+  characterLimit,
+  uppercase,
+  ...otherProps
+}) => {
   const {theme} = useTheme();
 
   const Spacing = 10;
   const [focused, setFocused] = useState(false);
+  const handleTextChange = text => {
+    let modifiedText = text;
+
+    // Apply character limit if specified
+    if (characterLimit) {
+      modifiedText = text.slice(0, characterLimit);
+    }
+
+    // Convert to uppercase if uppercase prop is true
+    if (uppercase) {
+      modifiedText = modifiedText.toUpperCase();
+    }
+
+    // Call the original onChangeText if it exists
+    if (otherProps.onChangeText) {
+      otherProps.onChangeText(modifiedText);
+    }
+  };
+
   return (
     <TextInput
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
+      maxLength={characterLimit}
+      onChangeText={handleTextChange}
       placeholderTextColor={theme.textInfo}
+      autoCapitalize={uppercase ? 'characters' : 'none'}
       style={[
         // eslint-disable-next-line react-native/no-inline-styles
         {
@@ -27,6 +56,7 @@ const AppTextInput = ({style, type, height, ...otherProps}) => {
           width: '100%',
           lineHeight: 23,
           color: theme.bgDark,
+          textTransform: uppercase ? 'uppercase' : 'none',
         },
         // eslint-disable-next-line react-native/no-inline-styles
         focused && {

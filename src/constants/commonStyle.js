@@ -105,7 +105,7 @@ const commonStyles = StyleSheet.create({
     color: '#000',
     lineHeight: 24,
   },
-  
+
   fnt14Medium: {
     fontSize: FontSize.small,
     fontFamily: 'Poppins-SemiBold',
@@ -252,6 +252,10 @@ const commonStyles = StyleSheet.create({
   },
   gap4: {
     gap: 16,
+  },
+  columnCenterFit: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   flexColumnCenter: {
     alignItems: 'center',

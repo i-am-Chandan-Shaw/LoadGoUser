@@ -30,6 +30,7 @@ const Register = ({route}) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    refferedBy: '',
     phone: route.params?.phone || '',
   });
 
@@ -56,6 +57,7 @@ const Register = ({route}) => {
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
+        refferedBy: formData.refferedBy,
         loginPin: '1234',
       };
       console.log(payload);
@@ -107,14 +109,21 @@ const Register = ({route}) => {
     }
   };
 
-  const isDataValid = () =>
-    Object.values(formData).every(value => value !== '');
+  const isDataValid = () => {
+    // Filter out the refferedBy field from validation
+    const requiredFields = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+    };
+    return Object.values(requiredFields).every(value => value !== '');
+  };
 
   const validateForm = () => {
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
 
     if (!isDataValid()) {
-      setSnackBarText('Please fill all the data');
+      setSnackBarText('Please fill all the required data');
       setVisible(true);
     } else if (!emailRegex.test(formData.email)) {
       setSnackBarText('Invalid Email');
@@ -175,6 +184,14 @@ const Register = ({route}) => {
                     inputMode="email"
                     height={50}
                     placeholder="Email"
+                  />
+                  <AppTextInput
+                    characterLimit={6423}
+                    uppercase={true}
+                    onChangeText={text => validateInputs(text, 'refferedBy')}
+                    value={formData.refferedBy}
+                    height={50}
+                    placeholder="Referral Code"
                   />
                 </View>
               </View>

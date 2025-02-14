@@ -348,7 +348,6 @@ const Dashboard = () => {
                     apikey={GOOGLE_MAPS_API_KEY}
                     strokeWidth={3}
                     strokeColor={'#007FFF'}
-                    optimizeWaypoints={true}
                     onReady={result => {
                       onMapDirectionReady(result);
                     }}

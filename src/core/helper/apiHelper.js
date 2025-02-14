@@ -9,6 +9,8 @@ const calculateFare = async (totalDistance, totalTime) => {
   const perKmCharge = parseInt(fareData?.perKm || 0, 10) * totalDistance;
   const perTimeCharge = parseInt(fareData?.afterAnHour || 0, 10) * totalTime;
 
+  console.log('fare=======>', baseFare, perKmCharge, perTimeCharge);
+
   const calculatedFare = baseFare + perKmCharge + perTimeCharge;
 
   return Math.ceil(calculatedFare);
@@ -53,22 +55,73 @@ export const updateDriverPushToken = async (driverId, pushToken) => {
 
 export const checkAppVersion = async () => {
   const CURRENT_VERSION = DeviceInfo.getVersion();
+  const appType = 'user';
+  let responseData = null;
+
+  console.log(`Current Version: ${CURRENT_VERSION}`);
 
   try {
+    // Make API call first to check if an update is required
+    const queryParameter = `?appType=${appType}&currentVersion=${CURRENT_VERSION}`;
+    const response = await get('getVersion', queryParameter);
+
+    if (response) {
+      responseData = response;
+
+      // Handle mandatory update
+      if (response.mandatoryUpdate) {
+        Alert.alert(
+          'Update Required',
+          response.message ||
+            'A mandatory update is required to continue using the app.',
+          [
+            {
+              text: 'Update Now',
+              onPress: () => Linking.openURL(response.updateUrl),
+            },
+          ],
+          {cancelable: false}, // Prevent dismissing the alert
+        );
+        return responseData; // Return early as app shouldn't proceed with mandatory update
+      }
+
+      // Handle optional update
+      if (response.nonMandatoryUpdate) {
+        Alert.alert(
+          'Update Available',
+          response.message ||
+            'A new version is available with exciting features.',
+          [
+            {
+              text: 'Later',
+              onPress: () => console.log('User chose to update later'),
+            },
+            {
+              text: 'Update Now',
+              onPress: () => Linking.openURL(response.updateUrl),
+            },
+          ],
+        );
+      }
+    }
+
+    // Handle version storage after checking updates
     const storedVersion = await AsyncStorage.getItem('app_version');
 
     if (!storedVersion) {
       await AsyncStorage.setItem('app_version', CURRENT_VERSION);
       console.log('Stored current version as it was not found previously.');
-      return;
+    } else if (storedVersion !== CURRENT_VERSION) {
+      await clearCache();
+      await AsyncStorage.setItem('app_version', CURRENT_VERSION);
+      console.log('Updated stored version and cleared cache.');
     }
 
-    if (storedVersion !== CURRENT_VERSION) {
-      await AsyncStorage.setItem('app_version', CURRENT_VERSION);
-      await clearCache();
-    }
+    return responseData;
   } catch (error) {
     console.error('Failed to check app version:', error);
+    // Return null to allow app initialization in case of error
+    return null;
   }
 };
 

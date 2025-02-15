@@ -1,6 +1,7 @@
 import { StyleSheet,Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 import FontSize from '../../constants/FontSize';
+import { black } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
 
 
 const style = StyleSheet.create({
@@ -14,15 +15,17 @@ const style = StyleSheet.create({
     timeLine:{
         flexDirection:'column',
         alignItems:'center',
-        justifyContent:'center',
+        // justifyContent:'center',
     },
     locationContainer:{
         flexDirection:'row',
         alignItems:'center',
-        width:width - 100,
-        paddingVertical:20
+        // width:width - 100,
+        paddingVertical:20,
+        paddingHorizontal:8,
     },
     locationText:{
+        width:'100%',
         paddingHorizontal:10,
     },
     text:{
@@ -37,7 +40,7 @@ const style = StyleSheet.create({
     },
     dottedLine:{
         width:1,
-        height:28,
+        height:45,
         borderLeftColor:'#778899',
         borderLeftWidth:2,
         borderStyle:'dotted',
@@ -56,6 +59,7 @@ const style = StyleSheet.create({
         fontSize: FontSize.small,
     },
     leftContent:{
+        gap: 10,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
@@ -64,6 +68,7 @@ const style = StyleSheet.create({
         borderRightWidth:1
     },
     rightContent:{
+        gap: 10,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
@@ -76,6 +81,7 @@ const style = StyleSheet.create({
     },
     middleContainer:{
         flexDirection:'row',
+        justifyContent:'space-between',
         alignItems:'center',
         paddingVertical:20,
     },
